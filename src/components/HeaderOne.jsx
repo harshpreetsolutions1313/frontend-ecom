@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import query from "jquery";
 import { Link, NavLink } from "react-router-dom";
+import { ethers } from 'ethers';
 
 const HeaderOne = () => {
   const [scroll, setScroll] = useState(false);
@@ -60,6 +61,43 @@ const HeaderOne = () => {
   const handleCatClick = (index) => {
     setActiveIndexCat(activeIndexCat === index ? null : index);
   };
+  // Wallet support
+  const [walletAddress, setWalletAddress] = useState(null);
+
+  const connectWallet = async () => {
+    try {
+      if (!window.ethereum) {
+        alert('MetaMask not detected. Please install MetaMask.');
+        return;
+      }
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      setWalletAddress(address);
+      // expose globally for other components to optionally use
+      window.currentAccount = address;
+      window.dispatchEvent(new CustomEvent('walletConnected', { detail: address }));
+    } catch (e) {
+      console.error('Wallet connection failed', e);
+      alert('Wallet connection failed');
+    }
+  };
+
+  useEffect(() => {
+    const handleAccountsChanged = (accounts) => {
+      if (accounts && accounts.length > 0) setWalletAddress(accounts[0]);
+      else setWalletAddress(null);
+    };
+    if (window.ethereum && window.ethereum.on) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+    }
+    return () => {
+      if (window.ethereum && window.ethereum.removeListener) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -774,6 +812,13 @@ const HeaderOne = () => {
                     Cart
                   </span>
                 </Link>
+                <button
+                  onClick={connectWallet}
+                  type='button'
+                  className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-none d-lg-inline-flex align-items-center'
+                >
+                  {walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+                </button>
               </div>
             </div>
             {/* Header Middle Right End  */}

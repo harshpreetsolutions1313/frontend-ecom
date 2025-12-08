@@ -19,13 +19,16 @@ import VendorTwoPage from "./pages/VendorTwoPage";
 import VendorTwoDetailsPage from "./pages/VendorTwoDetailsPage";
 import BecomeSellerPage from "./pages/BecomeSellerPage";
 import WishlistPage from "./pages/WishlistPage";
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
     <BrowserRouter>
       <RouteScrollToTop />
       <PhosphorIconInit />
-
+      <Toaster position="top-right" />
       <Routes>
+
         <Route exact path='/' element={<HomePageOne />} />
         {/* <Route exact path='/index-two' element={<HomePageTwo />} />
         <Route exact path='/index-three' element={<HomePageThree />} />

@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { ethers } from 'ethers';
+import toast from 'react-hot-toast'; // Optional: for nice notifications
+
+
+import {
+    CONTRACT_ABI,
+    ERC20_ABI,
+    CONTRACT_ADDRESS,
+    USDT_ADDRESS,
+    USDC_ADDRESS,
+} from '../abi/ecommercePaymentAbi';
 
 const RecommendedOne = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
+    const [selectedToken, setSelectedToken] = useState('USDT'); // USDT or USDC
+    const [buyingProductId, setBuyingProductId] = useState(null);
 
-    // Fetch products from your API
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -23,22 +35,17 @@ const RecommendedOne = () => {
                 setLoading(false);
             }
         };
-
         fetchProducts();
     }, []);
 
-    // Filter products by category (case-insensitive)
     const getFilteredProducts = () => {
         if (activeTab === 'all') return products;
 
         return products.filter(product => {
             const category = product.category?.toLowerCase() || '';
-
             switch (activeTab) {
                 case 'grocery':
-                    return ['dairy', 'grocery', 'food', 'snack', 'bread', 'cereal'].some(term =>
-                        category.includes(term)
-                    );
+                    return ['dairy', 'grocery', 'food', 'snack', 'bread', 'cereal'].some(term => category.includes(term));
                 case 'fruits':
                     return category.includes('fruit');
                 case 'juices':
@@ -56,6 +63,99 @@ const RecommendedOne = () => {
     };
 
     const filteredProducts = getFilteredProducts();
+
+    // Web3 Buy Function
+    const handleBuyNow = async (product) => {
+        if (!window.ethereum) {
+            toast.error("Please install MetaMask!");
+            return;
+        }
+
+        setBuyingProductId(product._id);
+        let provider, signer, contract, tokenContract;
+
+        try {
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            provider = new ethers.BrowserProvider(window.ethereum);
+            signer = await provider.getSigner();
+
+            if (!CONTRACT_ADDRESS) {
+                toast.error('Contract address not configured. Set REACT_APP_CONTRACT_ADDRESS');
+                return;
+            }
+
+            const tokenAddress = selectedToken === 'USDT' ? USDT_ADDRESS : USDC_ADDRESS;
+            if (!tokenAddress) {
+                toast.error(`Token address for ${selectedToken} not configured.`);
+                return;
+            }
+
+            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+            tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+
+            // Read the contract's configured token addresses and validate
+            let contractUsdt = '';
+            let contractUsdc = '';
+            try {
+                contractUsdt = (await contract.usdtToken())?.toString?.() || '';
+                contractUsdc = (await contract.usdcToken())?.toString?.() || '';
+            } catch (e) {
+                // If the deployed contract doesn't expose these, we'll continue — but warn
+                console.warn('Could not read contract token addresses', e);
+            }
+
+            if (contractUsdt || contractUsdc) {
+                const t = tokenAddress.toLowerCase();
+                const u = (contractUsdt || '').toLowerCase();
+                const c = (contractUsdc || '').toLowerCase();
+                if (t !== u && t !== c) {
+                    toast.error(
+                        `Selected token is not accepted by contract. Contract accepts USDT=${contractUsdt} USDC=${contractUsdc}`
+                    );
+                    return;
+                }
+            }
+
+            // Try to fetch token decimals, fallback to 6
+            let decimals = 6;
+            try {
+                const d = await tokenContract.decimals();
+                decimals = Number(d?.toString?.() ?? d) || 6;
+            } catch (e) {
+                // keep default
+            }
+
+            const amount = ethers.parseUnits(product.price.toString(), decimals);
+
+            // Step 1: Approve
+            toast.loading('Approving token spending...', { id: 'approve' });
+            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, amount);
+            await approveTx.wait();
+            toast.success('Approved!', { id: 'approve' });
+
+            // Step 2: Create & Pay Order
+            toast.loading('Processing payment...', { id: 'payment' });
+            const tx = await contract.createAndPayForOrder(product._id.toString(), amount, tokenAddress);
+            const receipt = await tx.wait();
+
+            toast.success('Purchase Successful!', { id: 'payment' });
+            toast.success(
+                <div>
+                    Payment Complete!{' '}
+                    <a href={`https://sepolia.etherscan.io/tx/${receipt.hash}`} target="_blank" rel="noreferrer">
+                        View on Explorer
+                    </a>
+                </div>
+            );
+
+        } catch (err) {
+            console.error(err);
+            const message = err?.reason || err?.message || 'Transaction failed';
+            toast.error((message && message.toString().toLowerCase().includes('user rejected')) ? 'You rejected the transaction' : message);
+        } finally {
+            setBuyingProductId(null);
+        }
+    };
 
     if (loading) {
         return (
@@ -87,8 +187,27 @@ const RecommendedOne = () => {
     return (
         <section className="recommended">
             <div className="container container-lg">
-                <div className="section-heading flex-between flex-wrap gap-16">
+                {/* Header with Currency Selector */}
+                <div className="section-heading flex-between flex-wrap gap-16 align-items-center">
                     <h5 className="mb-0">Recommended for you</h5>
+
+                    <div className="flex-align gap-12">
+                        <span className="text-gray-600 fw-medium">Pay with:</span>
+                        <div className="btn-group" role="group">
+                            <button
+                                className={`btn btn-sm ${selectedToken === 'USDT' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`}
+                                onClick={() => setSelectedToken('USDT')}
+                            >
+                                USDT
+                            </button>
+                            <button
+                                className={`btn btn-sm ${selectedToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`}
+                                onClick={() => setSelectedToken('USDC')}
+                            >
+                                USDC
+                            </button>
+                        </div>
+                    </div>
 
                     {/* Tabs */}
                     <ul className="nav common-tab nav-pills" id="pills-tab" role="tablist">
@@ -114,7 +233,6 @@ const RecommendedOne = () => {
                     </ul>
                 </div>
 
-                {/* Product Grid */}
                 <div className="tab-content mt-24">
                     <div className="tab-pane fade show active">
                         <div className="row g-12">
@@ -126,19 +244,6 @@ const RecommendedOne = () => {
                                 filteredProducts.map((product) => (
                                     <div key={product._id} className="col-xxl-2 col-lg-3 col-sm-4 col-6">
                                         <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-
-                                            {/* Optional Badge (you can add logic later) */}
-
-                                        
-                                            {/* {product.stock < 20 && product.stock > 0 && 
-                                            
-                                            (    
-                                                <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                                                    Low Stock
-                                                </span>
-                                            )
-                                            
-                                            } */}
 
                                             {product.stock === 0 && (
                                                 <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
@@ -152,9 +257,7 @@ const RecommendedOne = () => {
                                                     alt={product.name}
                                                     className="w-100 h-auto cover-img"
                                                     style={{ objectFit: 'cover', height: '200px' }}
-                                                    onError={(e) => {
-                                                        e.target.src = 'https://via.placeholder.com/300x300?text=No+Image';
-                                                    }}
+                                                    onError={(e) => e.target.src = 'https://via.placeholder.com/300x300?text=No+Image'}
                                                 />
                                             </Link>
 
@@ -177,23 +280,38 @@ const RecommendedOne = () => {
                                                 <div className="product-card__price mb-12">
                                                     <span className="text-heading text-md fw-semibold">
                                                         ${Number(product.price).toFixed(2)}
-                                                        <span className="text-gray-500 fw-normal"> /Qty</span>
+                                                        <span className="text-gray-500 fw-normal"> ({selectedToken})</span>
                                                     </span>
                                                 </div>
 
-                                                <div className="flex-align gap-6 mb-16">
-                                                    <span className="text-xs fw-bold text-gray-600">4.8</span>
-                                                    <span className="text-15 fw-bold text-warning-600 d-flex">
-                                                        <i className="ph-fill ph-star" />
-                                                    </span>
-                                                    <span className="text-xs fw-bold text-gray-600">({product.stock}+)</span>
-                                                </div>
+                                                {/* BUY BUTTON */}
+                                                <button
+                                                    onClick={() => handleBuyNow(product)}
+                                                    disabled={buyingProductId === product._id || product.stock === 0}
+                                                    className={`w-100 btn py-11 px-24 rounded-pill flex-align gap-8 justify-content-center transition-2 ${
+                                                        buyingProductId === product._id
+                                                            ? 'btn-secondary'
+                                                            : 'bg-main-600 hover-bg-main-700 text-white'
+                                                    }`}
+                                                >
+                                                    {buyingProductId === product._id ? (
+                                                        <>
+                                                            <span className="spinner-border spinner-border-sm me-8" />
+                                                            Processing...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            Buy Now with {selectedToken} <i className="ph ph-wallet" />
+                                                        </>
+                                                    )}
+                                                </button>
 
+                                                {/* Optional: Keep View Details below */}
                                                 <Link
                                                     to={`/product-details/${product._id}`}
-                                                    className="product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 w-100 justify-content-center transition-2"
+                                                    className="d-block text-center mt-8 text-main-600 hover-text-decoration-underline text-sm"
                                                 >
-                                                    View Details <i className="ph ph-arrow-right" />
+                                                    View Details →
                                                 </Link>
                                             </div>
                                         </div>
