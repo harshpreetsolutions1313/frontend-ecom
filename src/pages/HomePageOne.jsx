@@ -42,10 +42,10 @@ const HomePageOne = () => {
       <HeaderOne />
 
       {/* BannerOne */}
-      {/* <BannerOne /> */}
+      <BannerOne />
 
       {/* FeatureOne */}
-      {/* <FeatureOne /> */}
+      <FeatureOne />
 
       {/* PromotionalOne */}
       {/* <PromotionalOne /> */}
@@ -63,40 +63,40 @@ const HomePageOne = () => {
       <RecommendedOne />
 
       {/* HotDealsOne */}
-      <HotDealsOne /> 
+      {/* <HotDealsOne />  */}
 
       {/* TopVendorsOne */}
-      <TopVendorsOne />
+      {/* <TopVendorsOne /> */}
 
       {/* BestSellsOne */}
-      <BestSellsOne />
+      {/* <BestSellsOne /> */}
 
       {/* DeliveryOne */}
-      <DeliveryOne />
+      {/* <DeliveryOne /> */}
 
       {/* OrganicOne */}
-      <OrganicOne />
+      {/* <OrganicOne /> */}
 
       {/* ShortProductOne */}
-      <ShortProductOne />
+      {/* <ShortProductOne /> */}
 
       {/* BrandOne */}
-      <BrandOne />
+      {/* <BrandOne /> */}
 
       {/* NewArrivalOne */}
-      <NewArrivalOne />
+      {/* <NewArrivalOne /> */}
 
       {/* ShippingOne */}
-      <ShippingOne />
+      {/* <ShippingOne /> */}
 
       {/* NewsletterOne */}
-      <NewsletterOne />
+      {/* <NewsletterOne /> */}
 
       {/* FooterOne */}
       <FooterOne />
 
       {/* BottomFooter */}
-      <BottomFooter />
+      {/* <BottomFooter /> */}
 
 
     </>

@@ -18,7 +18,13 @@ const RecommendedOne = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
-    const [selectedToken, setSelectedToken] = useState('USDT'); // USDT or USDC
+    const [selectedToken, setSelectedToken] = useState(() => {
+        try {
+            return localStorage.getItem('preferredToken') || 'USDT';
+        } catch (e) {
+            return 'USDT';
+        }
+    }); // USDT or USDC
     const [buyingProductId, setBuyingProductId] = useState(null);
 
     useEffect(() => {
@@ -36,6 +42,27 @@ const RecommendedOne = () => {
             }
         };
         fetchProducts();
+    }, []);
+
+    // Keep selectedToken in sync with global preference (header/localStorage)
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key === 'preferredToken') {
+                setSelectedToken(e.newValue || 'USDT');
+            }
+        };
+        const onWindowPref = () => {
+            try {
+                const v = window.preferredToken || localStorage.getItem('preferredToken');
+                if (v) setSelectedToken(v);
+            } catch (e) {}
+        };
+        window.addEventListener('storage', onStorage);
+        window.addEventListener('prefChanged', onWindowPref);
+        return () => {
+            window.removeEventListener('storage', onStorage);
+            window.removeEventListener('prefChanged', onWindowPref);
+        };
     }, []);
 
     const getFilteredProducts = () => {
@@ -195,14 +222,27 @@ const RecommendedOne = () => {
                         <span className="text-gray-600 fw-medium">Pay with:</span>
                         <div className="btn-group" role="group">
                             <button
-                                className={`btn btn-sm ${selectedToken === 'USDT' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`}
-                                onClick={() => setSelectedToken('USDT')}
+                                type="button"
+                                aria-pressed={selectedToken === 'USDT'}
+                                className={`btn btn-sm ${selectedToken === 'USDT' ? 'bg-main-600 text-white' : 'bg-white border border-main-600 text-main-600'}`}
+                                style={{ minWidth: '72px', padding: '6px 12px' }}
+                                onClick={() => {
+                                    setSelectedToken('USDT');
+                                    try { localStorage.setItem('preferredToken', 'USDT'); window.preferredToken = 'USDT'; window.dispatchEvent(new Event('prefChanged')); } catch (e) {}
+                                }}
                             >
                                 USDT
                             </button>
+
                             <button
-                                className={`btn btn-sm ${selectedToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`}
-                                onClick={() => setSelectedToken('USDC')}
+                                type="button"
+                                aria-pressed={selectedToken === 'USDC'}
+                                className={`btn btn-sm ${selectedToken === 'USDC' ? 'bg-main-600 text-white' : 'bg-white border border-main-600 text-main-600'}`}
+                                style={{ minWidth: '72px', padding: '6px 12px' }}
+                                onClick={() => {
+                                    setSelectedToken('USDC');
+                                    try { localStorage.setItem('preferredToken', 'USDC'); window.preferredToken = 'USDC'; window.dispatchEvent(new Event('prefChanged')); } catch (e) {}
+                                }}
                             >
                                 USDC
                             </button>
@@ -253,11 +293,11 @@ const RecommendedOne = () => {
 
                                             <Link to={`/product-details/${product._id}`} className="product-card__thumb flex-center rounded-8 overflow-hidden">
                                                 <img
-                                                    src={product.images[0] || 'https://via.placeholder.com/300x300?text=No+Image'}
+                                                    src={product.images[0] || '/images/no-image.svg'}
                                                     alt={product.name}
                                                     className="w-100 h-auto cover-img"
                                                     style={{ objectFit: 'cover', height: '200px' }}
-                                                    onError={(e) => e.target.src = 'https://via.placeholder.com/300x300?text=No+Image'}
+                                                    onError={(e) => e.target.src = '/images/no-image.svg'}
                                                 />
                                             </Link>
 

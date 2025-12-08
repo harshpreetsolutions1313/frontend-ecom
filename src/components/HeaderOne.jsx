@@ -63,6 +63,14 @@ const HeaderOne = () => {
   };
   // Wallet support
   const [walletAddress, setWalletAddress] = useState(null);
+  const [preferredToken, setPreferredToken] = useState(() => {
+    try { return localStorage.getItem('preferredToken') || 'USDT'; } catch(e) { return 'USDT'; }
+  });
+
+  const selectPreferredToken = (token) => {
+    setPreferredToken(token);
+    try { localStorage.setItem('preferredToken', token); window.preferredToken = token; window.dispatchEvent(new Event('prefChanged')); } catch(e) {}
+  };
 
   const connectWallet = async () => {
     try {
@@ -102,11 +110,14 @@ const HeaderOne = () => {
   return (
     <>
       <div className='overlay' />
+      
       <div
         className={`side-overlay ${(menuActive || activeCategory) && "show"}`}
       />
+
+
       {/* ==================== Search Box Start Here ==================== */}
-      <form action='#' className={`search-box ${activeSearch && "active"}`}>
+      {/* <form action='#' className={`search-box ${activeSearch && "active"}`}>
         <button
           onClick={handleSearchToggle}
           type='button'
@@ -129,8 +140,11 @@ const HeaderOne = () => {
             </button>
           </div>
         </div>
-      </form>
+      </form> */}
       {/* ==================== Search Box End Here ==================== */}
+
+
+
       {/* ==================== Mobile Menu Start Here ==================== */}
       <div
         className={`mobile-menu scroll-sm d-lg-none d-block ${
@@ -429,11 +443,13 @@ const HeaderOne = () => {
         </div>
       </div>
       {/* ==================== Mobile Menu End Here ==================== */}
+
+      
       {/* ======================= Middle Top Start ========================= */}
       <div className='header-top bg-main-600 flex-between'>
         <div className='container container-lg'>
           <div className='flex-between flex-wrap gap-8'>
-            <ul className='flex-align flex-wrap d-none d-md-flex'>
+            {/* <ul className='flex-align flex-wrap d-none d-md-flex'>
               <li className='border-right-item'>
                 <Link
                   to='#'
@@ -466,13 +482,14 @@ const HeaderOne = () => {
                   Returns Policy
                 </Link>
               </li>
-            </ul>
+            </ul> */}
+
             <ul className='header-top__right flex-align flex-wrap'>
               <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'>
-                <Link to='#' className='text-white text-sm py-8'>
+                {/* <Link to='#' className='text-white text-sm py-8'>
                   Help Center
-                </Link>
-                <ul className='on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8'>
+                </Link> */}
+                {/* <ul className='on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8'>
                   <li className='nav-submenu__item'>
                     <Link
                       to='#'
@@ -495,10 +512,10 @@ const HeaderOne = () => {
                       Live Chat
                     </Link>
                   </li>
-                </ul>
+                </ul> */}
               </li>
-              <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'>
-                {/* Display the selected language here */}
+              {/* <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'>
+                
                 <Link to='#' className='selected-text text-white text-sm py-8'>
                   {selectedLanguage}
                 </Link>
@@ -588,10 +605,10 @@ const HeaderOne = () => {
                     </Link>
                   </li>
                 </ul>
-              </li>
-              <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'>
+              </li> */}
+              {/* <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'> */}
                 {/* Display the selected currency */}
-                <Link to='#' className='selected-text text-white text-sm py-8'>
+                {/* <Link to='#' className='selected-text text-white text-sm py-8'>
                   {selectedCurrency}
                 </Link>
                 <ul className='selectable-text-list on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8'>
@@ -680,8 +697,8 @@ const HeaderOne = () => {
                     </Link>
                   </li>
                 </ul>
-              </li>
-              <li className='border-right-item'>
+              </li> */}
+              {/* <li className='border-right-item'>
                 <Link
                   to='/account'
                   className='text-white text-sm py-8 flex-align gap-6'
@@ -694,22 +711,25 @@ const HeaderOne = () => {
                     My Account
                   </span>
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
       </div>
+
+
+      
       {/* ======================= Middle Top End ========================= */}
       {/* ======================= Middle Header Start ========================= */}
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
           <nav className='header-inner flex-between'>
             {/* Logo Start */}
-            <div className='logo'>
+            {/* <div className='logo'>
               <Link to='/' className='link'>
                 <img src='assets/images/logo/logo.png' alt='Logo' />
               </Link>
-            </div>
+            </div> */}
             {/* Logo End  */}
             {/* form location Start */}
             <form
@@ -717,7 +737,7 @@ const HeaderOne = () => {
               className='flex-align flex-wrap form-location-wrapper'
             >
               <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none'>
-                <select
+                {/* <select
                   defaultValue={1}
                   className='js-example-basic-single border border-gray-200 border-end-0'
                   name='state'
@@ -733,8 +753,8 @@ const HeaderOne = () => {
                   <option value={1}>Fronzen Foods</option>
                   <option value={1}>Noodles &amp; Rice</option>
                   <option value={1}>Ice Cream</option>
-                </select>
-                <div className='search-form__wrapper position-relative'>
+                </select> */}
+                {/* <div className='search-form__wrapper position-relative'>
                   <input
                     type='text'
                     className='search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44'
@@ -746,13 +766,13 @@ const HeaderOne = () => {
                   >
                     <i className='ph ph-magnifying-glass' />
                   </button>
-                </div>
+                </div> */}
               </div>
-              <div className='location-box bg-white flex-align gap-8 py-6 px-16 rounded-pill border border-gray-100'>
+              {/* <div className='location-box bg-white flex-align gap-8 py-6 px-16 rounded-pill border border-gray-100'>
                 <span className='text-gray-900 text-xl d-xs-flex d-none'>
                   <i className='ph ph-map-pin' />
-                </span>
-                <div className='line-height-1'>
+                </span> */}
+                {/* <div className='line-height-1'>
                   <span className='text-gray-600 text-xs'>Your Location</span>
                   <div className='line-height-1'>
                     <select
@@ -775,12 +795,12 @@ const HeaderOne = () => {
                       <option value={1}>New York</option>
                     </select>
                   </div>
-                </div>
-              </div>
+                </div> */}
+              {/* </div> */}
             </form>
             {/* form location start */}
             {/* Header Middle Right start */}
-            <div className='header-right flex-align d-lg-block d-none'>
+            <div className='header-right flex-align'>
               <div className='flex-align flex-wrap gap-12'>
                 <button
                   type='button'
@@ -790,7 +810,7 @@ const HeaderOne = () => {
                     <i className='ph ph-magnifying-glass' />
                   </span>
                 </button>
-                <Link to='/wishlist' className='flex-align gap-4 item-hover'>
+                {/* <Link to='/wishlist' className='flex-align gap-4 item-hover'>
                   <span className='text-2xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text'>
                     <i className='ph ph-heart' />
                     <span className='w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4'>
@@ -800,8 +820,9 @@ const HeaderOne = () => {
                   <span className='text-md text-gray-500 item-hover__text d-none d-lg-flex'>
                     Wishlist
                   </span>
-                </Link>
-                <Link to='/cart' className='flex-align gap-4 item-hover'>
+                </Link> */}
+
+                {/* <Link to='/cart' className='flex-align gap-4 item-hover'>
                   <span className='text-2xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text'>
                     <i className='ph ph-shopping-cart-simple' />
                     <span className='w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4'>
@@ -811,14 +832,20 @@ const HeaderOne = () => {
                   <span className='text-md text-gray-500 item-hover__text d-none d-lg-flex'>
                     Cart
                   </span>
-                </Link>
-                <button
-                  onClick={connectWallet}
-                  type='button'
-                  className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-none d-lg-inline-flex align-items-center'
-                >
-                  {walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
-                </button>
+                </Link> */}
+                <div className='d-flex align-items-center gap-8'>
+                  <div className='btn-group d-inline-flex' role='group' aria-label='Select token'>
+                    <button type='button' className={`btn btn-sm ${preferredToken === 'USDT' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDT')}>USDT</button>
+                    <button type='button' className={`btn btn-sm ${preferredToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDC')}>USDC</button>
+                  </div>
+                  <button
+                    onClick={connectWallet}
+                    type='button'
+                    className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                  >
+                    {walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+                  </button>
+                </div>
               </div>
             </div>
             {/* Header Middle Right End  */}
@@ -835,9 +862,9 @@ const HeaderOne = () => {
         <div className='container container-lg'>
           <nav className='header-inner d-flex justify-content-between gap-8'>
             <div className='flex-align menu-category-wrapper'>
-              {/* Category Dropdown Start */}
+              
               <div className='category on-hover-item'>
-                <button
+                {/* <button
                   onClick={handleCategoryToggle}
                   type='button'
                   className='category__button flex-align gap-8 fw-medium p-16 border-end border-start border-gray-100 text-heading'
@@ -849,7 +876,7 @@ const HeaderOne = () => {
                   <span className='arrow-icon text-xl d-flex'>
                     <i className='ph ph-caret-down' />
                   </span>
-                </button>
+                </button> */}
                 <div
                   className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
                     activeCategory && "active"
@@ -1220,10 +1247,10 @@ const HeaderOne = () => {
                 {/* Nav Menu Start */}
                 <ul className='nav-menu flex-align '>
                   <li className='on-hover-item nav-menu__item has-submenu'>
-                    <Link to='#' className='nav-menu__link'>
+                    {/* <Link to='#' className='nav-menu__link'>
                       Home
-                    </Link>
-                    <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
+                    </Link> */}
+                    {/* <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
                       <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/'
@@ -1261,14 +1288,14 @@ const HeaderOne = () => {
                           Home Fashion
                         </NavLink>
                       </li>
-                    </ul>
+                    </ul> */}
                   </li>
                   <li className='on-hover-item nav-menu__item has-submenu'>
-                    <Link to='#' className='nav-menu__link'>
+                    {/* <Link to='#' className='nav-menu__link'>
                       Shop
-                    </Link>
+                    </Link> */}
                     <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/shop'
                           className={(navData) =>
@@ -1280,8 +1307,8 @@ const HeaderOne = () => {
                           {" "}
                           Shop
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/product-details'
                           className={(navData) =>
@@ -1293,8 +1320,8 @@ const HeaderOne = () => {
                           {" "}
                           Shop Details
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/product-details-two'
                           className={(navData) =>
@@ -1306,18 +1333,18 @@ const HeaderOne = () => {
                           {" "}
                           Shop Details Two
                         </NavLink>
-                      </li>
+                      </li> */}
                     </ul>
                   </li>
                   <li className='on-hover-item nav-menu__item has-submenu'>
-                    <span className='badge-notification bg-warning-600 text-white text-sm py-2 px-8 rounded-4'>
+                    {/* <span className='badge-notification bg-warning-600 text-white text-sm py-2 px-8 rounded-4'>
                       New
                     </span>
                     <Link to='#' className='nav-menu__link'>
                       Pages
-                    </Link>
+                    </Link> */}
                     <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/cart'
                           className={(navData) =>
@@ -1329,8 +1356,8 @@ const HeaderOne = () => {
                           {" "}
                           Cart
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/wishlist'
                           className={(navData) =>
@@ -1341,8 +1368,8 @@ const HeaderOne = () => {
                         >
                           Wishlist
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/checkout'
                           className={(navData) =>
@@ -1354,9 +1381,9 @@ const HeaderOne = () => {
                           {" "}
                           Checkout{" "}
                         </NavLink>
-                      </li>
+                      </li> */}
 
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/become-seller'
                           className={(navData) =>
@@ -1367,8 +1394,8 @@ const HeaderOne = () => {
                         >
                           Become Seller
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/account'
                           className={(navData) =>
@@ -1380,18 +1407,18 @@ const HeaderOne = () => {
                           {" "}
                           Account
                         </NavLink>
-                      </li>
+                      </li> */}
                     </ul>
                   </li>
                   <li className='on-hover-item nav-menu__item has-submenu'>
-                    <span className='badge-notification bg-tertiary-600 text-white text-sm py-2 px-8 rounded-4'>
+                    {/* <span className='badge-notification bg-tertiary-600 text-white text-sm py-2 px-8 rounded-4'>
                       New
                     </span>
                     <Link to='#' className='nav-menu__link'>
                       Vendors
-                    </Link>
+                    </Link> */}
                     <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/vendor'
                           className={(navData) =>
@@ -1402,8 +1429,8 @@ const HeaderOne = () => {
                         >
                           Vendors
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/vendor-details'
                           className={(navData) =>
@@ -1414,8 +1441,8 @@ const HeaderOne = () => {
                         >
                           Vendor Details
                         </NavLink>
-                      </li>
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      </li> */}
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/vendor-two'
                           className={(navData) =>
@@ -1426,9 +1453,9 @@ const HeaderOne = () => {
                         >
                           Vendors Two
                         </NavLink>
-                      </li>
+                      </li> */}
 
-                      <li className='common-dropdown__item nav-submenu__item'>
+                      {/* <li className='common-dropdown__item nav-submenu__item'>
                         <NavLink
                           to='/vendor-two-details'
                           className={(navData) =>
@@ -1439,10 +1466,10 @@ const HeaderOne = () => {
                         >
                           Vendors Two Details
                         </NavLink>
-                      </li>
+                      </li> */}
                     </ul>
                   </li>
-                  <li className='on-hover-item nav-menu__item has-submenu'>
+                  {/* <li className='on-hover-item nav-menu__item has-submenu'>
                     <Link to='#' className='nav-menu__link'>
                       Blog
                     </Link>
@@ -1474,8 +1501,8 @@ const HeaderOne = () => {
                         </NavLink>
                       </li>
                     </ul>
-                  </li>
-                  <li className='nav-menu__item'>
+                  </li> */}
+                  {/* <li className='nav-menu__item'>
                     <NavLink
                       to='/contact'
                       className={(navData) =>
@@ -1486,7 +1513,7 @@ const HeaderOne = () => {
                     >
                       Contact Us
                     </NavLink>
-                  </li>
+                  </li> */}
                 </ul>
                 {/* Nav Menu End */}
               </div>
@@ -1494,7 +1521,7 @@ const HeaderOne = () => {
             </div>
             {/* Header Right start */}
             <div className='header-right flex-align'>
-              <Link
+              {/* <Link
                 to='/tel:01234567890'
                 className='bg-main-600 text-white p-12 h-100 hover-bg-main-800 flex-align gap-8 text-lg d-lg-flex d-none'
               >
@@ -1502,7 +1529,7 @@ const HeaderOne = () => {
                   <i className='ph ph-phone-call' />
                 </div>
                 01- 234 567 890
-              </Link>
+              </Link> */}
               <div className='me-16 d-lg-none d-block'>
                 <div className='flex-align flex-wrap gap-12'>
                   <button

@@ -1,8 +1,47 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import Slider from 'react-slick';
+import axios from 'axios';
 
 const FeatureOne = () => {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchCategories = async () => {
+            try {
+                setLoading(true);
+                const res = await axios.get('http://localhost:5000/api/products/categories/details');
+                const data = Array.isArray(res.data) ? res.data : [];
+
+                // Deduplicate categories case-insensitively and aggregate counts
+                const map = new Map();
+                data.forEach(item => {
+                    const key = (item.category || '').toLowerCase().trim();
+                    if (!key) return;
+                    if (!map.has(key)) {
+                        map.set(key, { category: item.category, imageUrl: item.imageUrl, count: item.count || 0 });
+                    } else {
+                        const cur = map.get(key);
+                        cur.count = (cur.count || 0) + (item.count || 0);
+                        // keep first image if existing
+                        if (!cur.imageUrl && item.imageUrl) cur.imageUrl = item.imageUrl;
+                        map.set(key, cur);
+                    }
+                });
+
+                if (mounted) setCategories(Array.from(map.values()));
+            } catch (e) {
+                console.error('Failed to fetch categories', e);
+                if (mounted) setCategories([]);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        fetchCategories();
+        return () => { mounted = false; };
+    }, []);
 
     function SampleNextArrow(props) {
         const { className, onClick } = props;
@@ -92,23 +131,43 @@ const FeatureOne = () => {
         ],
     };
 
+    const circleStyle = {
+        width: 120,
+        height: 120,
+        borderRadius: '50%',
+        background: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        boxShadow: '0 6px 18px rgba(16,24,40,0.06)',
+        border: '1px solid rgba(15,23,42,0.04)'
+    };
+
+    const smallCircleStyle = {
+        width: 88,
+        height: 88,
+        borderRadius: '50%',
+        background: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        boxShadow: '0 6px 18px rgba(16,24,40,0.04)',
+        border: '1px solid rgba(15,23,42,0.04)'
+    };
+
     return (
         <div className="feature" id="featureSection">
-
             <div className="container container-lg">
-
                 <div className="position-relative arrow-center">
-
                     <div className="flex-align">
-
                         <button
                             type="button"
                             id="feature-item-wrapper-prev"
                             className="slick-prev slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1"
                         >
-
                             <i className="ph ph-caret-left" />
-
                         </button>
 
                         <button
@@ -118,190 +177,54 @@ const FeatureOne = () => {
                         >
                             <i className="ph ph-caret-right" />
                         </button>
-
                     </div>
 
                     <div className="feature-item-wrapper">
-                       
                         <Slider {...settings}>
-                            
-                            <div className="feature-item text-center">
-                                
-                                <div className="feature-item__thumb rounded-circle">
-                                   
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img1.png" alt="" />
-                                    </Link>
-
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    
-                                    <h6 className="text-lg mb-8">
-                                        
-                                        <Link to="/shop" className="text-inherit">
-                                            Vegetables
+                            {loading ? (
+                                <div className="feature-item text-center">
+                                    <div className="feature-item__thumb">
+                                        <Link to="/shop" className="w-100 h-100 flex-center">
+                                            <div style={smallCircleStyle}>
+                                                <img src="assets/images/thumbs/feature-img1.png" alt="loading" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </div>
                                         </Link>
-                                        
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
+                                    </div>
+                                    <div className="feature-item__content mt-16">
+                                        <h6 className="text-lg mb-8">
+                                            <Link to="/shop" className="text-inherit">Loading</Link>
+                                        </h6>
+                                        <span className="text-sm text-gray-400">Please wait</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img2.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Fish &amp; Meats
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img3.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Desserts
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img4.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Drinks &amp; Juice
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img5.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Animals Food
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img6.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Fresh Fruits
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img7.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Yummy Candy
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img2.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Fish &amp; Meats
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img8.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Dairy &amp; Eggs
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img9.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Snacks
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
-                            <div className="feature-item text-center">
-                                <div className="feature-item__thumb rounded-circle">
-                                    <Link to="/shop" className="w-100 h-100 flex-center">
-                                        <img src="assets/images/thumbs/feature-img10.png" alt="" />
-                                    </Link>
-                                </div>
-                                <div className="feature-item__content mt-16">
-                                    <h6 className="text-lg mb-8">
-                                        <Link to="/shop" className="text-inherit">
-                                            Frozen Foods
-                                        </Link>
-                                    </h6>
-                                    <span className="text-sm text-gray-400">125+ Products</span>
-                                </div>
-                            </div>
+                            ) : (
+                                categories.map((cat, idx) => (
+                                    <div className="feature-item text-center" key={cat.category + idx}>
+                                        <div className="feature-item__thumb">
+                                            <Link to={`/shop?category=${encodeURIComponent(cat.category)}`} className="w-100 h-100 flex-center">
+                                                <div 
+                                                style={circleStyle}
+                                                >
+                                                    <img src={cat.imageUrl || '/images/no-image.svg'} alt={cat.category} onError={(e) => e.target.src = '/images/no-image.svg'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        <div className="feature-item__content mt-16">
+                                            <h6 className="text-lg mb-8">
+                                                <Link to={`/shop?category=${encodeURIComponent(cat.category)}`} className="text-inherit">
+                                                    {cat.category}
+                                                </Link>
+                                            </h6>
+                                            <span className="text-sm text-gray-400">{(cat.count || 0)} Products</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </Slider>
                     </div>
                 </div>
             </div>
         </div>
-
     )
 }
 
