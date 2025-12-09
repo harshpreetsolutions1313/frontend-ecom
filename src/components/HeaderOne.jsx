@@ -101,6 +101,43 @@ const HeaderOne = () => {
   const [searchError, setSearchError] = useState(null);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
+  // Categories state (for secondary navbar)
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchCats = async () => {
+      setCategoriesLoading(true);
+      try {
+        const res = await axios.get('http://localhost:5000/api/products/categories/details');
+        const data = Array.isArray(res.data) ? res.data : [];
+        // dedupe by lowercase category
+        const map = new Map();
+        data.forEach(item => {
+          const raw = item.category || '';
+          const key = raw.toLowerCase().trim();
+          if (!key) return;
+          if (!map.has(key)) map.set(key, { category: raw, imageUrl: item.imageUrl, count: item.count || 0 });
+          else {
+            const cur = map.get(key);
+            cur.count = (cur.count || 0) + (item.count || 0);
+            if (!cur.imageUrl && item.imageUrl) cur.imageUrl = item.imageUrl;
+            map.set(key, cur);
+          }
+        });
+        if (mounted) setCategories(Array.from(map.values()));
+      } catch (e) {
+        console.error('Failed to load categories for header', e);
+        if (mounted) setCategories([]);
+      } finally {
+        if (mounted) setCategoriesLoading(false);
+      }
+    };
+    fetchCats();
+    return () => { mounted = false; };
+  }, []);
+
   // Debounced search effect
   useEffect(() => {
     if (!searchQuery || searchQuery.trim().length < 2) {
@@ -909,6 +946,28 @@ const HeaderOne = () => {
         </div>
       </header>
       {/* ======================= Middle Header End ========================= */}
+      {/* ======================= Categories Bar (secondary nav) ========================= */}
+      <div className='categories-bar bg-white border-bottom'>
+        <div className='container container-lg'>
+          <nav className='categories-inner d-flex flex-wrap align-items-center gap-12' style={{ padding: '8px 0' }}>
+            {categoriesLoading ? (
+              <div className='text-sm text-gray-500'>Loading categories...</div>
+            ) : (
+              (categories || []).slice(0, 8).map((cat, idx) => (
+                <Link
+                  key={(cat.category || '') + idx}
+                  to={`/shop?category=${encodeURIComponent(cat.category)}`}
+                  className='d-flex align-items-center text-inherit text-decoration-none me-12'
+                  style={{ minWidth: 120 }}
+                >
+                  <img src={cat.imageUrl || '/images/no-image.svg'} alt={cat.category} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8 }} onError={(e) => e.target.src = '/images/no-image.svg'} />
+                  <span className='ms-8 text-sm text-gray-700'>{cat.category}</span>
+                </Link>
+              ))
+            )}
+          </nav>
+        </div>
+      </div>
       {/* ==================== Header Start Here ==================== */}
       <header
         className={`header bg-white border-bottom border-gray-100 ${
