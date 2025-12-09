@@ -30,7 +30,7 @@ function App() {
       <Routes>
 
         <Route exact path='/' element={<HomePageOne />} />
-        {/* <Route exact path='/index-two' element={<HomePageTwo />} />
+        <Route exact path='/index-two' element={<HomePageTwo />} />
         <Route exact path='/index-three' element={<HomePageThree />} />
         <Route exact path='/shop' element={<ShopPage />} />
         <Route
@@ -38,7 +38,7 @@ function App() {
           path='/product-details'
           element={<ProductDetailsPageOne />}
         />
-        <Route
+        {/* <Route
           exact
           path='/product-details-two'
           element={<ProductDetailsPageTwo />}

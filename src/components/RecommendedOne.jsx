@@ -163,9 +163,32 @@ const RecommendedOne = () => {
             // Step 2: Create & Pay Order
             toast.loading('Processing payment...', { id: 'payment' });
             const tx = await contract.createAndPayForOrder(product._id.toString(), amount, tokenAddress);
+            
             const receipt = await tx.wait();
+            console.log("Receipt of the on-chain tx", receipt);
+
+
 
             toast.success('Purchase Successful!', { id: 'payment' });
+
+            console.log('Creating order in backend for product:', product._id);
+            console.log('Buyer address:', await signer.getAddress());
+            console.log('Amount:', product.price);
+            console.log('Token:', selectedToken);
+            console.log('Transaction Hash:', receipt.hash);
+            console.log('Paid:', true);
+
+
+            //call create order API to backend
+            await axios.post('http://localhost:5000/api/orders/create', {
+                productId: product._id,
+                buyer: await signer.getAddress(),
+                amount: product.price,
+                token: selectedToken,
+                orderId : receipt.hash,
+                paid : true
+            });
+
             toast.success(
                 <div>
                     Payment Complete!{' '}
