@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import query from "jquery";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import axios from 'axios';
 import { ethers } from 'ethers';
 
 const HeaderOne = () => {
@@ -91,6 +92,47 @@ const HeaderOne = () => {
       alert('Wallet connection failed');
     }
   };
+
+  // Search state
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
+  // Debounced search effect
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const id = setTimeout(async () => {
+      setSearchLoading(true);
+      setSearchError(null);
+      try {
+        const res = await axios.get(`http://localhost:5000/api/products/search?q=${encodeURIComponent(searchQuery)}`);
+        if (!cancelled) {
+          setSearchResults(Array.isArray(res.data) ? res.data : []);
+          setShowSearchDropdown(true);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Search API error', err);
+          setSearchError('Search failed');
+          setSearchResults([]);
+          setShowSearchDropdown(false);
+        }
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    }, 300);
+
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleAccountsChanged = (accounts) => {
@@ -733,32 +775,20 @@ const HeaderOne = () => {
             {/* Logo End  */}
             {/* form location Start */}
             <form
-              action='#'
+              onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
               className='flex-align flex-wrap form-location-wrapper'
             >
-              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none'>
-                {/* <select
-                  defaultValue={1}
-                  className='js-example-basic-single border border-gray-200 border-end-0'
-                  name='state'
-                >
-                  <option value={1}>All Categories</option>
-                  <option value={1}>Grocery</option>
-                  <option value={1}>Breakfast &amp; Dairy</option>
-                  <option value={1}>Vegetables</option>
-                  <option value={1}>Milks and Dairies</option>
-                  <option value={1}>Pet Foods &amp; Toy</option>
-                  <option value={1}>Breads &amp; Bakery</option>
-                  <option value={1}>Fresh Seafood</option>
-                  <option value={1}>Fronzen Foods</option>
-                  <option value={1}>Noodles &amp; Rice</option>
-                  <option value={1}>Ice Cream</option>
-                </select> */}
-                {/* <div className='search-form__wrapper position-relative'>
+              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none' style={{ position: 'relative' }}>
+                <div className='search-form__wrapper position-relative w-100'>
                   <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => { if (searchResults.length) setShowSearchDropdown(true); }}
+                    onBlur={() => { setTimeout(() => setShowSearchDropdown(false), 200); }}
                     type='text'
                     className='search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44'
                     placeholder='Search for a product or brand'
+                    aria-label='Search products'
                   />
                   <button
                     type='submit'
@@ -766,7 +796,33 @@ const HeaderOne = () => {
                   >
                     <i className='ph ph-magnifying-glass' />
                   </button>
-                </div> */}
+
+                  {showSearchDropdown && (
+                    <div className='search-dropdown common-dropdown position-absolute bg-white shadow-sm' style={{ top: '56px', left: 0, right: 0, zIndex: 2000 }}>
+                      <div className='px-12 py-8'>
+                        {searchLoading && <div className='text-sm text-gray-500'>Searching...</div>}
+                        {searchError && <div className='text-sm text-danger'>{searchError}</div>}
+                        {!searchLoading && searchResults.length === 0 && <div className='text-sm text-gray-500'>No results</div>}
+                        <ul className='list-unstyled mb-0'>
+                          {searchResults.slice(0, 6).map((p) => (
+                            <li key={p._id} className='d-flex gap-12 align-items-center py-8 border-bottom'>
+                              <Link to={`/product-details/${p._id}`} onClick={() => setShowSearchDropdown(false)} className='d-flex gap-12 align-items-center text-inherit'>
+                                <img src={p.images?.[0] || '/images/no-image.svg'} alt={p.name} style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} onError={(e) => e.target.src = '/images/no-image.svg'} />
+                                <div>
+                                  <div className='text-sm fw-medium'>{p.name}</div>
+                                  <div className='text-xs text-gray-500'>${Number(p.price).toFixed(2)}</div>
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className='text-end mt-8'>
+                          <Link to={`/shop?search=${encodeURIComponent(searchQuery)}`} onClick={() => setShowSearchDropdown(false)} className='text-sm text-main-600'>See all results →</Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               {/* <div className='location-box bg-white flex-align gap-8 py-6 px-16 rounded-pill border border-gray-100'>
                 <span className='text-gray-900 text-xl d-xs-flex d-none'>
