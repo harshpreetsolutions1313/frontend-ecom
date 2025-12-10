@@ -1,10 +1,68 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import axios from 'axios'
 import ReactSlider from 'react-slider'
 
 const ShopSection = () => {
 
     let [grid, setGrid] = useState(false)
+
+    // Products from API
+    const [products, setProducts] = useState([])
+    const [loadingProducts, setLoadingProducts] = useState(false)
+    const [productsError, setProductsError] = useState(null)
+    const location = useLocation()
+
+    // Fetch products based on query params: category, search, minPrice, maxPrice
+    useEffect(() => {
+        const qp = new URLSearchParams(location.search)
+        const category = qp.get('category')
+        const search = qp.get('search')
+        const minPrice = qp.get('minPrice')
+        const maxPrice = qp.get('maxPrice')
+
+        let url = 'http://localhost:5000/api/products'
+        if (category) {
+            url = `http://localhost:5000/api/products/category/${encodeURIComponent(category)}`
+        } else if (minPrice || maxPrice) {
+            const params = []
+            if (minPrice) params.push(`minPrice=${encodeURIComponent(minPrice)}`)
+            if (maxPrice) params.push(`maxPrice=${encodeURIComponent(maxPrice)}`)
+            url = `http://localhost:5000/api/products/filter/price-range?${params.join('&')}`
+        } else if (search) {
+            url = `http://localhost:5000/api/products/search?q=${encodeURIComponent(search)}`
+        }
+
+        let mounted = true
+        const fetchProducts = async () => {
+            setLoadingProducts(true)
+            setProductsError(null)
+            try {
+                const res = await axios.get(url)
+                if (!mounted) return
+                let data = res.data
+                if (Array.isArray(data)) {
+                    setProducts(data)
+                } else if (data && data.products) {
+                    setProducts(data.products)
+                } else if (data && data.data) {
+                    setProducts(data.data)
+                } else {
+                    // try to coerce
+                    setProducts(data ? [data] : [])
+                }
+            } catch (e) {
+                console.error('Failed to load products for shop', e)
+                if (!mounted) return
+                setProductsError('Failed to load products')
+                setProducts([])
+            } finally {
+                if (mounted) setLoadingProducts(false)
+            }
+        }
+        fetchProducts()
+        return () => { mounted = false }
+    }, [location.search])
 
     let [active, setActive] = useState(false)
     let sidebarController = () => {
@@ -657,7 +715,58 @@ const ShopSection = () => {
                             </div>
                         </div>
                         {/* Top End */}
-                        <div className={`list-grid-wrapper ${grid && "list-view"}`}>
+                        <div className={`list-grid-wrapper grid-cols-4 ${grid && "list-view"}`}>
+                            {loadingProducts && (
+                                <div className="w-100 text-center py-40">
+                                    <div className="spinner-border text-main-600" style={{ width: '3rem', height: '3rem' }} role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {(!loadingProducts && products && products.length > 0) && (
+                                products.map((p) => (
+                                    <div key={p._id || p.id || p.name} className="product-card h-100 p-16 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
+                                        <Link
+                                            to={`/product-details/${p._id || p.id}`}
+                                            className="product-card__thumb flex-center rounded-8 bg-gray-50 position-relative"
+                                            style={{ minHeight: '250px', maxHeight: '250px', overflow: 'hidden' }}
+                                        >
+                                            <img
+                                                src={(p.images && p.images[0]) || '/images/no-image.svg'}
+                                                alt={p.name}
+                                                className="w-auto max-w-unset"
+                                                style={{ maxHeight: '100%', objectFit: 'contain' }}
+                                            />
+                                            {p.badge && <span className="product-card__badge bg-primary-600 px-8 py-4 text-sm text-white position-absolute inset-inline-start-0 inset-block-start-0">{p.badge}</span>}
+                                        </Link>
+                                        <div className="product-card__content mt-16">
+                                            <h6 className="title text-lg fw-semibold mt-12 mb-8">
+                                                <Link to={`/product-details/${p._id || p.id}`} className="link text-line-2">{p.name}</Link>
+                                            </h6>
+                                            <div className="flex-align mb-20 mt-16 gap-6">
+                                                <span className="text-xs fw-medium text-gray-500">{p.rating || '—'}</span>
+                                                <span className="text-15 fw-medium text-warning-600 d-flex"><i className="ph-fill ph-star" /></span>
+                                                <span className="text-xs fw-medium text-gray-500">({p.reviews || 0})</span>
+                                            </div>
+                                            <div className="mt-8">
+                                                <div className="progress w-100 bg-color-three rounded-pill h-4">
+                                                    <div className="progress-bar bg-main-two-600 rounded-pill" style={{ width: `${Math.min(100, (p.soldPercent || 0))}%` }} />
+                                                </div>
+                                                <span className="text-gray-900 text-xs fw-medium mt-8">Sold: {p.sold || 0}/{p.stock || 0}</span>
+                                            </div>
+                                            <div className="product-card__price my-20">
+                                                {p.originalPrice && <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">${Number(p.originalPrice).toFixed(2)}</span>}
+                                                <span className="text-heading text-md fw-semibold ">${Number(p.price || p.amount || 0).toFixed(2)} <span className="text-gray-500 fw-normal">/Qty</span></span>
+                                            </div>
+                                            <Link to="/cart" className="product-card__cart btn bg-gray-50 text-heading hover-bg-main-600 hover-text-white py-11 px-24 rounded-8 flex-center gap-8 fw-medium">Add To Cart <i className="ph ph-shopping-cart" /></Link>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+
+                            {(!loadingProducts && (!products || products.length === 0)) && (
+                                <>
                             <div className="product-card h-100 p-16 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
                                 <Link
                                     to="/product-details-two"
@@ -1942,6 +2051,8 @@ const ShopSection = () => {
                                     </Link>
                                 </div>
                             </div>
+                                </>
+                            )}
                         </div>
                         {/* Pagination Start */}
                         <ul className="pagination flex-center flex-wrap gap-16">

@@ -35,8 +35,6 @@ const ShopPage = () => {
 
       {/* FooterTwo */}
       <FooterTwo />
-
-
     </>
   );
 };
