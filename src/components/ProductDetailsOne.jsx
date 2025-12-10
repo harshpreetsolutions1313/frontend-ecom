@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Slider from 'react-slick';
+import axios from 'axios'
+import toast from 'react-hot-toast'
 import { getCountdown } from '../helper/Countdown';
 
 const ProductDetailsOne = () => {
     const [timeLeft, setTimeLeft] = useState(getCountdown());
+    const { id: paramId } = useParams();
+    // support id passed via route param or querystring or pathname fallback
+    const getIdFromLocation = () => {
+        try {
+            const qp = new URLSearchParams(window.location.search);
+            if (qp.get('id')) return qp.get('id');
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            const last = parts[parts.length - 1];
+            if (last && last !== 'product-details') return last;
+        } catch (e) {}
+        return null;
+    };
+    const id = paramId || getIdFromLocation();
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -13,7 +31,7 @@ const ProductDetailsOne = () => {
 
         return () => clearInterval(interval);
     }, []);
-    const productImages = [
+    const productImages = product?.images && product.images.length ? product.images : [
         "assets/images/thumbs/product-details-thumb1.png",
         "assets/images/thumbs/product-details-thumb2.png",
         "assets/images/thumbs/product-details-thumb3.png",
@@ -36,6 +54,73 @@ const ProductDetailsOne = () => {
         slidesToScroll: 1,
         focusOnSelect: true,
     };
+
+    // Fetch product by id from API (robust to different response shapes)
+    useEffect(() => {
+        let mounted = true;
+        const fetchProduct = async () => {
+            const finalId = id || getIdFromLocation();
+            if (!finalId) {
+                setError('No product id provided');
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            try {
+                const res = await axios.get(`http://localhost:5000/api/products/${encodeURIComponent(finalId)}`);
+                if (!mounted) return;
+                console.log('Product API response', res.data);
+                let data = res.data;
+                if (data && data.product) data = data.product;
+                if (data && data.data) data = data.data;
+                setProduct(data || null);
+                setError(null);
+            } catch (e) {
+                console.error('Failed to fetch product', e);
+                if (!mounted) return;
+                setError('Failed to load product');
+                toast.error('Failed to load product details');
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        }
+        fetchProduct();
+        return () => { mounted = false; }
+    }, [paramId]);
+
+    // When product changes set main image to first product image
+    useEffect(() => {
+        if (product?.images && product.images.length) {
+            setMainImage(product.images[0]);
+        }
+    }, [product]);
+    if (loading) {
+        return (
+            <section className="product-details py-80">
+                <div className="container container-lg">
+                    <div className="text-center">
+                        <div className="spinner-border text-main-600" style={{ width: '3rem', height: '3rem' }} role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-16 text-gray-600">Loading product...</p>
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
+    if (error) {
+        return (
+            <section className="product-details py-80">
+                <div className="container container-lg">
+                    <div className="alert alert-danger text-center" role="alert">
+                        <strong>Oops!</strong> {error}
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
     return (
         <section className="product-details py-80">
             <div className="container container-lg">
@@ -69,7 +154,7 @@ const ProductDetailsOne = () => {
                             </div>
                             <div className="col-xl-6">
                                 <div className="product-details__content">
-                                    <h5 className="mb-12">Lay's Potato Chips Onion Flavored</h5>
+                                    <h5 className="mb-12">{product?.name || "Product"}</h5>
                                     <div className="flex-align flex-wrap gap-12">
                                         <div className="flex-align gap-12 flex-wrap">
                                             <div className="flex-align gap-8">
@@ -96,29 +181,25 @@ const ProductDetailsOne = () => {
                                                 (21,671)
                                             </span>
                                         </div>
-                                        <span className="text-sm fw-medium text-gray-500">|</span>
-                                        <span className="text-gray-900">
+                                        {/* <span className="text-sm fw-medium text-gray-500">|</span> */}
+                                        {/* <span className="text-gray-900">
                                             {" "}
                                             <span className="text-gray-400">SKU:</span>EB4DRP{" "}
-                                        </span>
+                                        </span> */}
                                     </div>
                                     <span className="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block" />
-                                    <p className="text-gray-700">
-                                        Vivamus adipiscing nisl ut dolor dignissim semper. Nulla luctus
-                                        malesuada tincidunt. Class aptent taciti sociosqu ad litora
-                                        torquent
-                                    </p>
+                                    <p className="text-gray-700">{product?.description || 'No description available.'}</p>
                                     <div className="mt-32 flex-align flex-wrap gap-32">
                                         <div className="flex-align gap-8">
-                                            <h4 className="mb-0">$25.00</h4>
-                                            <span className="text-md text-gray-500">$38.00</span>
+                                            <h4 className="mb-0">${Number(product?.price || 0).toFixed(2)}</h4>
+                                            {product?.originalPrice && <span className="text-md text-gray-500">${Number(product.originalPrice).toFixed(2)}</span>}
                                         </div>
-                                        <Link to="#" className="btn btn-main rounded-pill">
+                                        {/* <Link to="#" className="btn btn-main rounded-pill">
                                             Order on What'sApp
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                     <span className="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block" />
-                                    <div className="flex-align flex-wrap gap-16 bg-color-one rounded-8 py-16 px-24">
+                                    {/* <div className="flex-align flex-wrap gap-16 bg-color-one rounded-8 py-16 px-24">
                                         <div className="flex-align gap-16">
                                             <span className="text-main-600 text-sm">Special Offer:</span>
                                         </div>
@@ -141,7 +222,7 @@ const ProductDetailsOne = () => {
                                         <span className="text-gray-900 text-xs">
                                             Remains untill the end of the offer
                                         </span>
-                                    </div>
+                                    </div> */}
                                     <div className="mb-24">
                                         <div className="mt-32 flex-align gap-12 mb-16">
                                             <span className="w-32 h-32 bg-white flex-center rounded-circle text-main-600 box-shadow-xl">
@@ -165,7 +246,7 @@ const ProductDetailsOne = () => {
                                             />
                                         </div>
                                         <span className="text-sm text-gray-700 mt-8">
-                                            Available only:45
+                                            Available only: {product?.stock ?? 'N/A'}
                                         </span>
                                     </div>
                                     <span className="text-gray-900 d-block mb-8">Quantity:</span>
@@ -220,7 +301,7 @@ const ProductDetailsOne = () => {
                                         </div>
                                     </div>
                                     <span className="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block" />
-                                    <div className="flex-between gap-16 p-12 border border-main-two-600 border-dashed rounded-8 mb-16">
+                                    {/* <div className="flex-between gap-16 p-12 border border-main-two-600 border-dashed rounded-8 mb-16">
                                         <div className="flex-align gap-12">
                                             <button
                                                 type="button"
@@ -236,22 +317,24 @@ const ProductDetailsOne = () => {
                                             to="/cart"
                                             className="text-xs fw-semibold text-main-two-600 text-decoration-underline hover-text-main-two-700"
                                         >
+                                            
                                             View Details
+
                                         </Link>
-                                    </div>
-                                    <ul className="list-inside ms-12">
+                                    </div> */}
+                                    {/* <ul className="list-inside ms-12">
                                         <li className="text-gray-900 text-sm mb-8">
                                             Buy 1, Get 1 FREE
                                         </li>
                                         <li className="text-gray-900 text-sm mb-0">
                                             Buy 1, Get 1 FREE
                                         </li>
-                                    </ul>
+                                    </ul> */}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="col-lg-3">
+                    {/* <div className="col-lg-3">
                         <div className="product-details__sidebar border border-gray-100 rounded-16 overflow-hidden">
                             <div className="p-24">
                                 <div className="flex-between bg-main-600 rounded-pill p-8">
@@ -337,7 +420,7 @@ const ProductDetailsOne = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="pt-80">
                     <div className="product-dContent border rounded-24">

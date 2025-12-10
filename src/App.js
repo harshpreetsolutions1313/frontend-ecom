@@ -35,7 +35,7 @@ function App() {
         <Route exact path='/shop' element={<ShopPage />} />
         <Route
           exact
-          path='/product-details'
+          path='/product-details/:id'
           element={<ProductDetailsPageOne />}
         />
         {/* <Route

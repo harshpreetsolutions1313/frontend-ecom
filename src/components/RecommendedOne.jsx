@@ -370,12 +370,14 @@ const RecommendedOne = () => {
                                                 </button>
 
                                                 {/* Optional: Keep View Details below */}
+                                                
                                                 <Link
-                                                    to={`/product-details/${product._id}`}
+                                                    to={`/product-details/${product.id}`}
                                                     className="d-block text-center mt-8 text-main-600 hover-text-decoration-underline text-sm"
                                                 >
                                                     View Details →
                                                 </Link>
+
                                             </div>
                                         </div>
                                     </div>
