@@ -4,6 +4,7 @@ import Slider from 'react-slick';
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { getCountdown } from '../helper/Countdown';
+import { API_ENDPOINTS } from '../config/api';
 
 const ProductDetailsOne = () => {
     const [timeLeft, setTimeLeft] = useState(getCountdown());
@@ -67,7 +68,7 @@ const ProductDetailsOne = () => {
             }
             setLoading(true);
             try {
-                const res = await axios.get(`https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/${encodeURIComponent(finalId)}`);
+                const res = await axios.get(API_ENDPOINTS.PRODUCT_BY_ID(finalId));
                 if (!mounted) return;
                 console.log('Product API response', res.data);
                 let data = res.data;

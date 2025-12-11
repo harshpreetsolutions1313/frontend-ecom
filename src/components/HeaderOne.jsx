@@ -3,6 +3,7 @@ import query from "jquery";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { ethers } from 'ethers';
+import { API_ENDPOINTS } from '../config/api';
 
 const HeaderOne = () => {
   const [scroll, setScroll] = useState(false);
@@ -110,7 +111,7 @@ const HeaderOne = () => {
     const fetchCats = async () => {
       setCategoriesLoading(true);
       try {
-        const res = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/categories/details');
+        const res = await axios.get(API_ENDPOINTS.CATEGORIES_DETAILS);
         const data = Array.isArray(res.data) ? res.data : [];
         // dedupe by lowercase category
         const map = new Map();
@@ -151,7 +152,7 @@ const HeaderOne = () => {
       setSearchLoading(true);
       setSearchError(null);
       try {
-        const res = await axios.get(`https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/search?q=${encodeURIComponent(searchQuery)}`);
+        const res = await axios.get(API_ENDPOINTS.PRODUCT_SEARCH(searchQuery));
         if (!cancelled) {
           setSearchResults(Array.isArray(res.data) ? res.data : []);
           setShowSearchDropdown(true);

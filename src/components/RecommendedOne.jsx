@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast'; // Optional: for nice notifications
+import { API_ENDPOINTS } from '../config/api';
 
 
 import {
@@ -31,7 +32,7 @@ const RecommendedOne = () => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products');
+                const response = await axios.get(API_ENDPOINTS.PRODUCTS);
                 setProducts(response.data || []);
                 setError(null);
             } catch (err) {
@@ -180,7 +181,7 @@ const RecommendedOne = () => {
 
 
             //call create order API to backend
-            await axios.post('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/orders/create', {
+            await axios.post(API_ENDPOINTS.ORDERS_CREATE, {
                 productId: product._id,
                 buyer: await signer.getAddress(),
                 amount: product.price,

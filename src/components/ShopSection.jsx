@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import ReactSlider from 'react-slider'
+import { API_ENDPOINTS } from '../config/api'
 
 const ShopSection = () => {
 
@@ -26,16 +27,13 @@ const ShopSection = () => {
         const minPrice = qp.get('minPrice')
         const maxPrice = qp.get('maxPrice')
 
-        let url = 'https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products'
+        let url = API_ENDPOINTS.PRODUCTS
         if (category) {
-            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/category/${encodeURIComponent(category)}`
+            url = API_ENDPOINTS.PRODUCTS_BY_CATEGORY(category)
         } else if (minPrice || maxPrice) {
-            const params = []
-            if (minPrice) params.push(`minPrice=${encodeURIComponent(minPrice)}`)
-            if (maxPrice) params.push(`maxPrice=${encodeURIComponent(maxPrice)}`)
-            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/filter/price-range?${params.join('&')}`
+            url = API_ENDPOINTS.PRODUCTS_PRICE_RANGE(minPrice, maxPrice)
         } else if (search) {
-            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/search?q=${encodeURIComponent(search)}`
+            url = API_ENDPOINTS.PRODUCT_SEARCH(search)
         }
 
         let mounted = true
@@ -75,7 +73,7 @@ const ShopSection = () => {
         const fetchCategories = async () => {
             setLoadingCategories(true)
             try {
-                const res = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/categories/details')
+                const res = await axios.get(API_ENDPOINTS.CATEGORIES_DETAILS)
                 if (!mounted) return
                 let data = res.data
                 if (Array.isArray(data)) {
