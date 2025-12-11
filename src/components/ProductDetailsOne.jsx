@@ -67,7 +67,7 @@ const ProductDetailsOne = () => {
             }
             setLoading(true);
             try {
-                const res = await axios.get(`http://localhost:5000/api/products/${encodeURIComponent(finalId)}`);
+                const res = await axios.get(`https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/${encodeURIComponent(finalId)}`);
                 if (!mounted) return;
                 console.log('Product API response', res.data);
                 let data = res.data;

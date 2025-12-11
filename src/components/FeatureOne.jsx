@@ -12,7 +12,8 @@ const FeatureOne = () => {
         const fetchCategories = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get('http://localhost:5000/api/products/categories/details');
+                //const res = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/categories/details');
+                const res = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/categories/details');
                 const data = Array.isArray(res.data) ? res.data : [];
 
                 // Deduplicate categories case-insensitively and aggregate counts

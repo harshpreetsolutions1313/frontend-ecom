@@ -31,7 +31,7 @@ const RecommendedOne = () => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:5000/api/products');
+                const response = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products');
                 setProducts(response.data || []);
                 setError(null);
             } catch (err) {
@@ -180,7 +180,7 @@ const RecommendedOne = () => {
 
 
             //call create order API to backend
-            await axios.post('http://localhost:5000/api/orders/create', {
+            await axios.post('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/orders/create', {
                 productId: product._id,
                 buyer: await signer.getAddress(),
                 amount: product.price,

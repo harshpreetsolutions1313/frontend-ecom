@@ -26,16 +26,16 @@ const ShopSection = () => {
         const minPrice = qp.get('minPrice')
         const maxPrice = qp.get('maxPrice')
 
-        let url = 'http://localhost:5000/api/products'
+        let url = 'https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products'
         if (category) {
-            url = `http://localhost:5000/api/products/category/${encodeURIComponent(category)}`
+            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/category/${encodeURIComponent(category)}`
         } else if (minPrice || maxPrice) {
             const params = []
             if (minPrice) params.push(`minPrice=${encodeURIComponent(minPrice)}`)
             if (maxPrice) params.push(`maxPrice=${encodeURIComponent(maxPrice)}`)
-            url = `http://localhost:5000/api/products/filter/price-range?${params.join('&')}`
+            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/filter/price-range?${params.join('&')}`
         } else if (search) {
-            url = `http://localhost:5000/api/products/search?q=${encodeURIComponent(search)}`
+            url = `https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/search?q=${encodeURIComponent(search)}`
         }
 
         let mounted = true
@@ -75,7 +75,7 @@ const ShopSection = () => {
         const fetchCategories = async () => {
             setLoadingCategories(true)
             try {
-                const res = await axios.get('http://localhost:5000/api/products/categories/details')
+                const res = await axios.get('https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app/api/products/categories/details')
                 if (!mounted) return
                 let data = res.data
                 if (Array.isArray(data)) {
