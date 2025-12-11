@@ -11,6 +11,11 @@ const ShopSection = () => {
     const [products, setProducts] = useState([])
     const [loadingProducts, setLoadingProducts] = useState(false)
     const [productsError, setProductsError] = useState(null)
+    
+    // Categories from API
+    const [categories, setCategories] = useState([])
+    const [loadingCategories, setLoadingCategories] = useState(false)
+    
     const location = useLocation()
 
     // Fetch products based on query params: category, search, minPrice, maxPrice
@@ -64,6 +69,36 @@ const ShopSection = () => {
         return () => { mounted = false }
     }, [location.search])
 
+    // Fetch categories
+    useEffect(() => {
+        let mounted = true
+        const fetchCategories = async () => {
+            setLoadingCategories(true)
+            try {
+                const res = await axios.get('http://localhost:5000/api/products/categories/details')
+                if (!mounted) return
+                let data = res.data
+                if (Array.isArray(data)) {
+                    setCategories(data)
+                } else if (data && data.categories) {
+                    setCategories(data.categories)
+                } else if (data && data.data) {
+                    setCategories(data.data)
+                } else {
+                    setCategories([])
+                }
+            } catch (e) {
+                console.error('Failed to load categories', e)
+                if (!mounted) return
+                setCategories([])
+            } finally {
+                if (mounted) setLoadingCategories(false)
+            }
+        }
+        fetchCategories()
+        return () => { mounted = false }
+    }, [])
+
     let [active, setActive] = useState(false)
     let sidebarController = () => {
         setActive(!active)
@@ -91,110 +126,22 @@ const ShopSection = () => {
                                     Product Category
                                 </h6>
                                 <ul className="max-h-540 overflow-y-auto scroll-sm">
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Mobile &amp; Accessories (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Laptop (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Electronics (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Smart Watch (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Storage (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Portable Devices (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Action Camera (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Smart Gadget (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Monitor (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Smart TV (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Camera (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-24">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Monitor Stand (12)
-                                        </Link>
-                                    </li>
-                                    <li className="mb-0">
-                                        <Link
-                                            to="/product-details-two"
-                                            className="text-gray-900 hover-text-main-600"
-                                        >
-                                            Headphone (12)
-                                        </Link>
-                                    </li>
+                                    {loadingCategories ? (
+                                        <li className="mb-24 text-gray-500">Loading categories...</li>
+                                    ) : categories && categories.length > 0 ? (
+                                        categories.map((cat) => (
+                                            <li key={cat._id || cat.id || cat.name} className="mb-24">
+                                                <Link
+                                                    to={`/shop?category=${encodeURIComponent(cat.name || cat.title)}`}
+                                                    className="text-gray-900 hover-text-main-600"
+                                                >
+                                                    {cat.category || cat.title} ({cat.count || 0})
+                                                </Link>
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <li className="mb-24 text-gray-500">No categories available</li>
+                                    )}
                                 </ul>
                             </div>
                             <div className="shop-sidebar__box border border-gray-100 rounded-8 p-32 mb-32">
