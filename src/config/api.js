@@ -1,6 +1,6 @@
 // API Configuration
 // Centralized API base URL configuration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ecom-2wy9urr1z-harshpreets-projects-89314032.vercel.app';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://ecom-smoky-delta.vercel.app';
 
 export const API_ENDPOINTS = {
   BASE_URL: API_BASE_URL,
