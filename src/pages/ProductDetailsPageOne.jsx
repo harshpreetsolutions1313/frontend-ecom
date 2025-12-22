@@ -13,8 +13,6 @@ import ColorInit from "../helper/ColorInit";
 
 const ProductDetailsPageOne = () => {
 
-
-
   return (
     <>
 

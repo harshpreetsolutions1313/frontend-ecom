@@ -19,7 +19,9 @@ import VendorTwoPage from "./pages/VendorTwoPage";
 import VendorTwoDetailsPage from "./pages/VendorTwoDetailsPage";
 import BecomeSellerPage from "./pages/BecomeSellerPage";
 import WishlistPage from "./pages/WishlistPage";
+import PurchasedProductsSection from "./components/PurchasedProductsSection";
 import { Toaster } from 'react-hot-toast';
+import PurchasedProductsPage from "./pages/PurchasedProductsPage";
 
 function App() {
   return (
@@ -42,13 +44,14 @@ function App() {
           exact
           path='/product-details-two'
           element={<ProductDetailsPageTwo />}
-        />
+        /> */}
         <Route exact path='/cart' element={<CartPage />} />
-        <Route exact path='/checkout' element={<CheckoutPage />} />
-        <Route exact path='/become-seller' element={<BecomeSellerPage />} />
+        {/* <Route exact path='/checkout' element={<CheckoutPage />} />
+        <Route exact path='/become-seller' element={<BecomeSellerPage />} /> */}
         <Route exact path='/wishlist' element={<WishlistPage />} />
         <Route exact path='/account' element={<AccountPage />} />
-        <Route exact path='/blog' element={<BlogPage />} />
+        <Route exact path='/purchased-products' element={<PurchasedProductsPage />} />
+        {/* <Route exact path='/blog' element={<BlogPage />} />
         <Route exact path='/blog-details' element={<BlogDetailsPage />} />
         <Route exact path='/contact' element={<ContactPage />} />
         <Route exact path='/vendor' element={<VendorPage />} />

@@ -1,7 +1,79 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+// Assuming you are using react-router-dom for navigation
 import { Link } from "react-router-dom";
 
 const WishListSection = () => {
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Function to fetch wishlist items from the API
+  const fetchWishlistItems = async () => {
+    // Retrieve the token from localStorage using the key you specified
+    const jwtToken = localStorage.getItem('userToken');
+
+    if (!jwtToken) {
+      setError('User not authenticated. Please log in.');
+      setLoading(false);
+      return; // Exit if no token is found
+    }
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/products/wishlist', {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`, // Attach the JWT token
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        // Handle specific error codes if necessary (e.g., 401 Unauthorized)
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch wishlist items');
+      }
+
+      const data = await response.json();
+      
+      setWishlistItems(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlistItems();
+  }, []);
+
+  // Placeholder functions for actions (You will need to implement API calls here)
+  const handleRemoveItem = (productId) => {
+    console.log(`Removing item with ID: ${productId}`);
+    // Example implementation idea:
+    const jwtToken = localStorage.getItem('userToken');
+    fetch(`http://localhost:5000/api/products/wishlist/remove/${productId}`, { 
+      method: 'POST', 
+      headers: { 'Authorization': `Bearer ${jwtToken}` } 
+    }).then(() => fetchWishlistItems()); // Re-fetch list after deletion
+  };
+
+  const handleAddToCart = (productId) => {
+    console.log(`Adding item with ID: ${productId} to cart`);
+    // Implement API call to add item to cart
+  };
+
+  if (loading) {
+    return <section className='cart py-80'><div className="container container-lg">Loading wishlist...</div></section>;
+  }
+
+  if (error) {
+    return <section className='cart py-80'><div className="container container-lg">Error: {error}</div></section>;
+  }
+
+  if (wishlistItems.length === 0) {
+    return <section className='cart py-80'><div className="container container-lg">Your wishlist is empty.</div></section>;
+  }
+
   return (
     <section className='cart py-80'>
       <div className='container container-lg'>
@@ -12,354 +84,67 @@ const WishListSection = () => {
                 <table className='table rounded-8 overflow-hidden'>
                   <thead>
                     <tr className='border-bottom border-neutral-100'>
-                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'>
-                        Delete
-                      </th>
-                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'>
-                        Product Name
-                      </th>
-                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'>
-                        Unit Price
-                      </th>
-                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'>
-                        Stock Status
-                      </th>
+                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'> Delete </th>
+                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'> Product Name </th>
+                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'> Unit Price </th>
+                      <th className='h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100'> Stock Status </th>
                       <th className='h6 mb-0 text-lg fw-bold px-40 py-32' />
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className=''>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <button
-                          type='button'
-                          className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
-                        >
-                          <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
-                        </button>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <div className='table-product d-flex align-items-center gap-24'>
-                          <Link
-                            to='/product-details-two'
-                            className='table-product__thumb border border-gray-100 rounded-8 flex-center '
+                    {/* Map over the fetched wishlist items to render rows */}
+                    {wishlistItems.map((item) => (
+                      <tr key={item.id}>
+                        <td className='px-40 py-32 border-end border-neutral-100'>
+                          <button
+                            type='button'
+                            className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
+                            onClick={() => handleRemoveItem(item.id)}
                           >
-                            <img
-                              src='assets/images/thumbs/product-two-img1.png'
-                              alt=''
-                            />
-                          </Link>
-                          <div className='table-product__content text-start'>
-                            <h6 className='title text-lg fw-semibold mb-8'>
-                              <Link
-                                to='/product-details'
-                                className='link text-line-2'
-                                tabIndex={0}
-                              >
-                                Taylor Farms Broccoli Florets Vegetables
-                              </Link>
-                            </h6>
-                            <div className='flex-align gap-16 mb-16'>
-                              <div className='flex-align gap-6'>
-                                <span className='text-md fw-medium text-warning-600 d-flex'>
-                                  <i className='ph-fill ph-star' />
-                                </span>
-                                <span className='text-md fw-semibold text-gray-900'>
-                                  4.8
-                                </span>
+                            <i className='ph ph-x-circle text-2xl d-flex' /> Remove
+                          </button>
+                        </td>
+                        <td className='px-40 py-32 border-end border-neutral-100'>
+                          <div className='table-product d-flex align-items-center gap-24'>
+                            <Link
+                              to={`/product-details/${item.id}`}
+                              className='table-product__thumb border border-gray-100 rounded-8 flex-center'
+                            >
+                              {/* Use the first image URL from the product data */}
+                              <img src={item.images[0]} alt={item.name} />
+                            </Link>
+                            <div className='table-product__content text-start'>
+                              <h6 className='title text-lg fw-semibold mb-8'>
+                                <Link to={`/product-details/${item.id}`} className='link text-line-2' tabIndex={0}>
+                                  {item.name}
+                                </Link>
+                              </h6>
+                              {/* Reviews/tags logic is omitted as it's not in the API data */}
+                              <div className='flex-align gap-16'>
+                                <span className="text-sm text-neutral-600">{item.description}</span>
                               </div>
-                              <span className='text-sm fw-medium text-gray-200'>
-                                |
-                              </span>
-                              <span className='text-neutral-600 text-sm'>
-                                128 Reviews
-                              </span>
-                            </div>
-                            <div className='flex-align gap-16'>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Camera
-                              </Link>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Videos
-                              </Link>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          $125.00
-                        </span>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          In Stock
-                        </span>
-                      </td>
-                      <td className='px-40 py-32'>
-                        <Link
-                          to='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
-                      </td>
-                    </tr>
-                    <tr className=''>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <button
-                          type='button'
-                          className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
-                        >
-                          <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
-                        </button>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <div className='table-product d-flex align-items-center gap-24'>
-                          <Link
-                            to='/product-details-two'
-                            className='table-product__thumb border border-gray-100 rounded-8 flex-center '
+                        </td>
+                        <td className='px-40 py-32 border-end border-neutral-100'>
+                          <span className='text-lg h6 mb-0 fw-semibold'> ${item.price.toFixed(2)} </span>
+                        </td>
+                        <td className='px-40 py-32 border-end border-neutral-100'>
+                          <span className='text-lg h6 mb-0 fw-semibold' style={{ color: item.stock > 0 ? 'green' : 'red' }}>
+                            {item.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                          </span>
+                        </td>
+                        <td className='px-40 py-32'>
+                          <button
+                            className='btn btn-main-two rounded-8 px-64'
+                            onClick={() => handleAddToCart(item.id)}
+                            disabled={item.stock === 0}
                           >
-                            <img
-                              src='assets/images/thumbs/product-two-img3.png'
-                              alt=''
-                            />
-                          </Link>
-                          <div className='table-product__content text-start'>
-                            <h6 className='title text-lg fw-semibold mb-8'>
-                              <Link
-                                to='/product-details'
-                                className='link text-line-2'
-                                tabIndex={0}
-                              >
-                                Smart Phone With Intel Celeron
-                              </Link>
-                            </h6>
-                            <div className='flex-align gap-16 mb-16'>
-                              <div className='flex-align gap-6'>
-                                <span className='text-md fw-medium text-warning-600 d-flex'>
-                                  <i className='ph-fill ph-star' />
-                                </span>
-                                <span className='text-md fw-semibold text-gray-900'>
-                                  4.8
-                                </span>
-                              </div>
-                              <span className='text-sm fw-medium text-gray-200'>
-                                |
-                              </span>
-                              <span className='text-neutral-600 text-sm'>
-                                128 Reviews
-                              </span>
-                            </div>
-                            <div className='flex-align gap-16'>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Camera
-                              </Link>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Videos
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          $125.00
-                        </span>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          In Stock
-                        </span>
-                      </td>
-                      <td className='px-40 py-32'>
-                        <Link
-                          to='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
-                      </td>
-                    </tr>
-                    <tr className=''>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <button
-                          type='button'
-                          className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
-                        >
-                          <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
-                        </button>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <div className='table-product d-flex align-items-center gap-24'>
-                          <Link
-                            to='/product-details-two'
-                            className='table-product__thumb border border-gray-100 rounded-8 flex-center '
-                          >
-                            <img
-                              src='assets/images/thumbs/product-two-img14.png'
-                              alt=''
-                            />
-                          </Link>
-                          <div className='table-product__content text-start'>
-                            <h6 className='title text-lg fw-semibold mb-8'>
-                              <Link
-                                to='/product-details'
-                                className='link text-line-2'
-                                tabIndex={0}
-                              >
-                                HP Chromebook With Intel Celeron
-                              </Link>
-                            </h6>
-                            <div className='flex-align gap-16 mb-16'>
-                              <div className='flex-align gap-6'>
-                                <span className='text-md fw-medium text-warning-600 d-flex'>
-                                  <i className='ph-fill ph-star' />
-                                </span>
-                                <span className='text-md fw-semibold text-gray-900'>
-                                  4.8
-                                </span>
-                              </div>
-                              <span className='text-sm fw-medium text-gray-200'>
-                                |
-                              </span>
-                              <span className='text-neutral-600 text-sm'>
-                                128 Reviews
-                              </span>
-                            </div>
-                            <div className='flex-align gap-16'>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Camera
-                              </Link>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Videos
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          $125.00
-                        </span>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          In Stock
-                        </span>
-                      </td>
-                      <td className='px-40 py-32'>
-                        <Link
-                          to='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
-                      </td>
-                    </tr>
-                    <tr className=''>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <button
-                          type='button'
-                          className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
-                        >
-                          <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
-                        </button>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <div className='table-product d-flex align-items-center gap-24'>
-                          <Link
-                            to='/product-details-two'
-                            className='table-product__thumb border border-gray-100 rounded-8 flex-center '
-                          >
-                            <img
-                              src='assets/images/thumbs/product-two-img2.png'
-                              alt=''
-                            />
-                          </Link>
-                          <div className='table-product__content text-start'>
-                            <h6 className='title text-lg fw-semibold mb-8'>
-                              <Link
-                                to='/product-details'
-                                className='link text-line-2'
-                                tabIndex={0}
-                              >
-                                Smart watch With Intel Celeron
-                              </Link>
-                            </h6>
-                            <div className='flex-align gap-16 mb-16'>
-                              <div className='flex-align gap-6'>
-                                <span className='text-md fw-medium text-warning-600 d-flex'>
-                                  <i className='ph-fill ph-star' />
-                                </span>
-                                <span className='text-md fw-semibold text-gray-900'>
-                                  4.8
-                                </span>
-                              </div>
-                              <span className='text-sm fw-medium text-gray-200'>
-                                |
-                              </span>
-                              <span className='text-neutral-600 text-sm'>
-                                128 Reviews
-                              </span>
-                            </div>
-                            <div className='flex-align gap-16'>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Camera
-                              </Link>
-                              <Link
-                                to='/cart'
-                                className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
-                              >
-                                Videos
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          $125.00
-                        </span>
-                      </td>
-                      <td className='px-40 py-32 border-end border-neutral-100'>
-                        <span className='text-lg h6 mb-0 fw-semibold'>
-                          In Stock
-                        </span>
-                      </td>
-                      <td className='px-40 py-32'>
-                        <Link
-                          to='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
-                      </td>
-                    </tr>
+                            Add To Cart <i className='ph ph-shopping-cart' />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

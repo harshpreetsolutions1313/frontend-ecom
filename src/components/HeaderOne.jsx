@@ -6,7 +6,9 @@ import { ethers } from 'ethers';
 import { API_ENDPOINTS } from '../config/api';
 
 const HeaderOne = () => {
+
   const [scroll, setScroll] = useState(false);
+
   useEffect(() => {
     window.onscroll = () => {
       if (window.pageYOffset < 150) {
@@ -44,6 +46,7 @@ const HeaderOne = () => {
   const handleMenuClick = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
+  
   const handleMenuToggle = () => {
     setMenuActive(!menuActive);
   };

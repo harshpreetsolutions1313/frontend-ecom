@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import query from "jquery";
 import { Link, NavLink } from "react-router-dom";
+
 const HeaderTwo = ({ category }) => {
   const [scroll, setScroll] = useState(false);
   useEffect(() => {
@@ -232,7 +233,7 @@ const HeaderTwo = ({ category }) => {
                       className='common-dropdown__link nav-submenu__link hover-bg-neutral-100'
                     >
                       {" "}
-                      Cart
+                      Cartt
                     </Link>
                   </li>
                   <li className='common-dropdown__item nav-submenu__item'>
@@ -642,7 +643,7 @@ const HeaderTwo = ({ category }) => {
                     <i className='ph ph-user' />
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
-                    Profile
+                    Profilee
                   </span>
                 </Link>
                 <Link
@@ -651,26 +652,27 @@ const HeaderTwo = ({ category }) => {
                 >
                   <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
                     <i className='ph ph-heart' />
-                    <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
+                    {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
                       2
-                    </span>
+                    </span> */}
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
                     Wishlist
                   </span>
                 </Link>
                 <Link
-                  to='/cart'
+                  to='/purchased-products'
                   className='flex-align flex-column gap-8 item-hover-two'
                 >
                   <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
-                    <i className='ph-fill ph-shuffle' />
-                    <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
+                    {/* <i className='ph-fill ph-shuffle' /> */}
+                    <i className='ph-fill ph-cube' />
+                    {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
                       2
-                    </span>
+                    </span> */}
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
-                    Compare
+                    Purchased Products
                   </span>
                 </Link>
                 <Link
@@ -679,9 +681,9 @@ const HeaderTwo = ({ category }) => {
                 >
                   <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
                     <i className='ph ph-shopping-cart-simple' />
-                    <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
+                    {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
                       2
-                    </span>
+                    </span> */}
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
                     Cart
