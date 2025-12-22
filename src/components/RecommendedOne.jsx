@@ -1,32 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ethers } from 'ethers';
-import toast from 'react-hot-toast'; // Optional: for nice notifications
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 
-
-import {
-    CONTRACT_ABI,
-    ERC20_ABI,
-    CONTRACT_ADDRESS,
-    USDT_ADDRESS,
-    USDC_ADDRESS,
-} from '../abi/ecommercePaymentAbi';
-
 const RecommendedOne = () => {
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
-    const [selectedToken, setSelectedToken] = useState(() => {
-        try {
-            return localStorage.getItem('preferredToken') || 'USDT';
-        } catch (e) {
-            return 'USDT';
-        }
-    }); // USDT or USDC
-    const [buyingProductId, setBuyingProductId] = useState(null);
+    const [addingProductId, setAddingProductId] = useState(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -43,27 +27,6 @@ const RecommendedOne = () => {
             }
         };
         fetchProducts();
-    }, []);
-
-    // Keep selectedToken in sync with global preference (header/localStorage)
-    useEffect(() => {
-        const onStorage = (e) => {
-            if (e.key === 'preferredToken') {
-                setSelectedToken(e.newValue || 'USDT');
-            }
-        };
-        const onWindowPref = () => {
-            try {
-                const v = window.preferredToken || localStorage.getItem('preferredToken');
-                if (v) setSelectedToken(v);
-            } catch (e) {}
-        };
-        window.addEventListener('storage', onStorage);
-        window.addEventListener('prefChanged', onWindowPref);
-        return () => {
-            window.removeEventListener('storage', onStorage);
-            window.removeEventListener('prefChanged', onWindowPref);
-        };
     }, []);
 
     const getFilteredProducts = () => {
@@ -92,119 +55,27 @@ const RecommendedOne = () => {
 
     const filteredProducts = getFilteredProducts();
 
-    // Web3 Buy Function
-    const handleBuyNow = async (product) => {
-        if (!window.ethereum) {
-            toast.error("Please install MetaMask!");
+    const handleAddToCart = async (product) => {
+        const token = localStorage.getItem('userToken');
+        if (!token) {
+            toast.error('Please log in to add items to your cart.');
+            navigate('/account');
             return;
         }
-
-        setBuyingProductId(product._id);
-        let provider, signer, contract, tokenContract;
-
+        setAddingProductId(product.id);
         try {
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
-            provider = new ethers.BrowserProvider(window.ethereum);
-            signer = await provider.getSigner();
-
-            if (!CONTRACT_ADDRESS) {
-                toast.error('Contract address not configured. Set REACT_APP_CONTRACT_ADDRESS');
-                return;
-            }
-
-            const tokenAddress = selectedToken === 'USDT' ? USDT_ADDRESS : USDC_ADDRESS;
-            if (!tokenAddress) {
-                toast.error(`Token address for ${selectedToken} not configured.`);
-                return;
-            }
-
-            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-
-            // Read the contract's configured token addresses and validate
-            let contractUsdt = '';
-            let contractUsdc = '';
-            try {
-                contractUsdt = (await contract.usdtToken())?.toString?.() || '';
-                contractUsdc = (await contract.usdcToken())?.toString?.() || '';
-            } catch (e) {
-                // If the deployed contract doesn't expose these, we'll continue — but warn
-                console.warn('Could not read contract token addresses', e);
-            }
-
-            if (contractUsdt || contractUsdc) {
-                const t = tokenAddress.toLowerCase();
-                const u = (contractUsdt || '').toLowerCase();
-                const c = (contractUsdc || '').toLowerCase();
-                if (t !== u && t !== c) {
-                    toast.error(
-                        `Selected token is not accepted by contract. Contract accepts USDT=${contractUsdt} USDC=${contractUsdc}`
-                    );
-                    return;
-                }
-            }
-
-            // Try to fetch token decimals, fallback to 6
-            let decimals = 6;
-            try {
-                const d = await tokenContract.decimals();
-                decimals = Number(d?.toString?.() ?? d) || 6;
-            } catch (e) {
-                // keep default
-            }
-
-            const amount = ethers.parseUnits(product.price.toString(), decimals);
-
-            // Step 1: Approve
-            toast.loading('Approving token spending...', { id: 'approve' });
-            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, amount);
-            await approveTx.wait();
-            toast.success('Approved!', { id: 'approve' });
-
-            // Step 2: Create & Pay Order
-            toast.loading('Processing payment...', { id: 'payment' });
-            const tx = await contract.createAndPayForOrder(product._id.toString(), amount, tokenAddress);
-            
-            const receipt = await tx.wait();
-            console.log("Receipt of the on-chain tx", receipt);
-
-
-
-            toast.success('Purchase Successful!', { id: 'payment' });
-
-            console.log('Creating order in backend for product:', product._id);
-            console.log('Buyer address:', await signer.getAddress());
-            console.log('Amount:', product.price);
-            console.log('Token:', selectedToken);
-            console.log('Transaction Hash:', receipt.hash);
-            console.log('Paid:', true);
-
-
-            //call create order API to backend
-            await axios.post(API_ENDPOINTS.ORDERS_CREATE, {
-                productId: product._id,
-                buyer: await signer.getAddress(),
-                amount: product.price,
-                token: selectedToken,
-                orderId : receipt.hash,
-                paid : true
-            });
-
-            toast.success(
-                <div>
-                    Payment Complete!{' '}
-                    <a href={`https://sepolia.etherscan.io/tx/${receipt.hash}`} target="_blank" rel="noreferrer">
-                        View on Explorer
-                    </a>
-                </div>
-            );
-
+            await axios.post(API_ENDPOINTS.CART, {
+                productId: product.id,
+                quantity: 1,
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            toast.success('Added to cart');
+            window.dispatchEvent(new Event('cartUpdated'));
         } catch (err) {
-            console.error(err);
-            const message = err?.reason || err?.message || 'Transaction failed';
-            toast.error((message && message.toString().toLowerCase().includes('user rejected')) ? 'You rejected the transaction' : message);
+            console.error('Add to cart failed', err);
+            const message = err?.response?.data?.message || err?.message || 'Failed to add to cart';
+            toast.error(message);
         } finally {
-            setBuyingProductId(null);
+            setAddingProductId(null);
         }
     };
 
@@ -238,40 +109,8 @@ const RecommendedOne = () => {
     return (
         <section className="recommended">
             <div className="container container-lg">
-                {/* Header with Currency Selector */}
                 <div className="section-heading flex-between flex-wrap gap-16 align-items-center">
                     <h5 className="mb-0">Recommended for you</h5>
-
-                    <div className="flex-align gap-12">
-                        <span className="text-gray-600 fw-medium">Pay with:</span>
-                        <div className="btn-group" role="group">
-                            <button
-                                type="button"
-                                aria-pressed={selectedToken === 'USDT'}
-                                className={`btn btn-sm ${selectedToken === 'USDT' ? 'bg-main-600 text-white' : 'bg-white border border-main-600 text-main-600'}`}
-                                style={{ minWidth: '72px', padding: '6px 12px' }}
-                                onClick={() => {
-                                    setSelectedToken('USDT');
-                                    try { localStorage.setItem('preferredToken', 'USDT'); window.preferredToken = 'USDT'; window.dispatchEvent(new Event('prefChanged')); } catch (e) {}
-                                }}
-                            >
-                                USDT
-                            </button>
-
-                            <button
-                                type="button"
-                                aria-pressed={selectedToken === 'USDC'}
-                                className={`btn btn-sm ${selectedToken === 'USDC' ? 'bg-main-600 text-white' : 'bg-white border border-main-600 text-main-600'}`}
-                                style={{ minWidth: '72px', padding: '6px 12px' }}
-                                onClick={() => {
-                                    setSelectedToken('USDC');
-                                    try { localStorage.setItem('preferredToken', 'USDC'); window.preferredToken = 'USDC'; window.dispatchEvent(new Event('prefChanged')); } catch (e) {}
-                                }}
-                            >
-                                USDC
-                            </button>
-                        </div>
-                    </div>
 
                     {/* Tabs */}
                     <ul className="nav common-tab nav-pills" id="pills-tab" role="tablist">
@@ -306,7 +145,7 @@ const RecommendedOne = () => {
                                 </div>
                             ) : (
                                 filteredProducts.map((product) => (
-                                    <div key={product._id} className="col-xxl-2 col-lg-3 col-sm-4 col-6">
+                                    <div key={product.id} className="col-xxl-2 col-lg-3 col-sm-4 col-6">
                                         <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
 
                                             {product.stock === 0 && (
@@ -315,7 +154,7 @@ const RecommendedOne = () => {
                                                 </span>
                                             )}
 
-                                            <Link to={`/product-details/${product._id}`} className="product-card__thumb flex-center rounded-8 overflow-hidden">
+                                            <Link to={`/product-details/${product.id}`} className="product-card__thumb flex-center rounded-8 overflow-hidden">
                                                 <img
                                                     src={product.images[0] || '/images/no-image.svg'}
                                                     alt={product.name}
@@ -327,7 +166,7 @@ const RecommendedOne = () => {
 
                                             <div className="product-card__content p-sm-2 mt-16">
                                                 <h6 className="title text-lg fw-semibold mb-8">
-                                                    <Link to={`/product-details/${product._id}`} className="link text-line-2">
+                                                    <Link to={`/product-details/${product.id}`} className="link text-line-2">
                                                         {product.name}
                                                     </Link>
                                                 </h6>
@@ -344,28 +183,29 @@ const RecommendedOne = () => {
                                                 <div className="product-card__price mb-12">
                                                     <span className="text-heading text-md fw-semibold">
                                                         ${Number(product.price).toFixed(2)}
-                                                        <span className="text-gray-500 fw-normal"> ({selectedToken})</span>
                                                     </span>
                                                 </div>
 
-                                                {/* BUY BUTTON */}
+                                                {/* ADD TO CART BUTTON */}
                                                 <button
-                                                    onClick={() => handleBuyNow(product)}
-                                                    disabled={buyingProductId === product._id || product.stock === 0}
-                                                    className={`w-100 btn py-11 px-24 rounded-pill flex-align gap-8 justify-content-center transition-2 ${
-                                                        buyingProductId === product._id
+                                                    onClick={() => handleAddToCart(product)}
+                                                    disabled={addingProductId === product.id || product.stock === 0}
+                                                    className={`
+                                                        w-100 btn py-11 px-24 rounded-pill flex-align gap-8 justify-content-center transition-2 
+                                                        ${
+                                                        addingProductId === product.id
                                                             ? 'btn-secondary'
                                                             : 'bg-main-600 hover-bg-main-700 text-white'
                                                     }`}
                                                 >
-                                                    {buyingProductId === product._id ? (
+                                                    {addingProductId === product.id ? (
                                                         <>
                                                             <span className="spinner-border spinner-border-sm me-8" />
-                                                            Processing...
+                                                            Adding...
                                                         </>
                                                     ) : (
                                                         <>
-                                                            Buy Now with {selectedToken} <i className="ph ph-wallet" />
+                                                            Add to Cart <i className="ph ph-shopping-cart" />
                                                         </>
                                                     )}
                                                 </button>

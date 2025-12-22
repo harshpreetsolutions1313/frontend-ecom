@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import query from "jquery";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -46,7 +46,7 @@ const HeaderOne = () => {
   const handleMenuClick = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
-  
+
   const handleMenuToggle = () => {
     setMenuActive(!menuActive);
   };
@@ -79,13 +79,75 @@ const HeaderOne = () => {
   // Wallet support
   const [walletAddress, setWalletAddress] = useState(null);
   const [preferredToken, setPreferredToken] = useState(() => {
-    try { return localStorage.getItem('preferredToken') || 'USDT'; } catch(e) { return 'USDT'; }
+    try { return localStorage.getItem('preferredToken') || 'USDT'; } catch (e) { return 'USDT'; }
   });
+  // Cart support
+  const [cartItems, setCartItems] = useState([]);
+  const [cartMenuOpen, setCartMenuOpen] = useState(false);
+  const [cartLoading, setCartLoading] = useState(false);
+  const cartMenuRef = useRef(null);
 
   const selectPreferredToken = (token) => {
     setPreferredToken(token);
-    try { localStorage.setItem('preferredToken', token); window.preferredToken = token; window.dispatchEvent(new Event('prefChanged')); } catch(e) {}
+    try { localStorage.setItem('preferredToken', token); window.preferredToken = token; window.dispatchEvent(new Event('prefChanged')); } catch (e) { }
   };
+
+  const normalizeCartItems = (cartEntries = []) => {
+    return cartEntries
+      .map((entry) => {
+        // Each entry in the cart array has: productId, quantity, and product object
+        const product = entry.product || {};
+
+        // Use MongoDB _id as the primary identifier
+        const id = product._id || entry.productId || '';
+
+        if (!id) return null; // Will be filtered out later
+
+        return {
+          id,
+          name: (product.name || 'Product').trim(),
+          price: Number(product.price || 0),
+          quantity: Number(entry.quantity || 1),
+          image:
+            (product.images && product.images.length > 0 && product.images[0]) ||
+            '/images/no-image.svg',
+        };
+      })
+      .filter(Boolean); // Remove null/undefined entries
+  };
+
+  const authHeaders = () => {
+    const token = localStorage.getItem('userToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const fetchCartItems = useCallback(async () => {
+    if (!localStorage.getItem('userToken')) {
+      setCartItems([]);
+      return;
+    }
+
+    setCartLoading(true);
+
+    try {
+      const res = await axios.get(API_ENDPOINTS.CART, {
+        headers: authHeaders(),
+      });
+
+      const payload = res.data;
+
+      const cartArray = Array.isArray(payload?.cart) ? payload.cart : [];
+
+      const normalizedItems = normalizeCartItems(cartArray);
+
+      setCartItems(normalizedItems);
+    } catch (e) {
+      console.error('Failed to load cart', e);
+      setCartItems([]);
+    } finally {
+      setCartLoading(false);
+    }
+  }, []);
 
   const connectWallet = async () => {
     try {
@@ -216,6 +278,9 @@ const HeaderOne = () => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
         setAccountMenuOpen(false);
       }
+      if (cartMenuRef.current && !cartMenuRef.current.contains(event.target)) {
+        setCartMenuOpen(false);
+      }
     };
 
     syncLoginState();
@@ -230,7 +295,19 @@ const HeaderOne = () => {
     };
   }, []);
 
+  useEffect(() => {
+    fetchCartItems();
+  }, [fetchCartItems, isLoggedIn]);
+
+  useEffect(() => {
+    const onCartUpdated = () => fetchCartItems();
+    window.addEventListener('cartUpdated', onCartUpdated);
+    return () => window.removeEventListener('cartUpdated', onCartUpdated);
+  }, [fetchCartItems]);
+
   const toggleAccountMenu = () => setAccountMenuOpen((prev) => !prev);
+  const toggleCartMenu = () => setCartMenuOpen((prev) => !prev);
+  const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
   const handleLogout = () => {
     try {
@@ -247,7 +324,7 @@ const HeaderOne = () => {
   return (
     <>
       <div className='overlay' />
-      
+
       <div
         className={`side-overlay ${(menuActive || activeCategory) && "show"}`}
       />
@@ -284,9 +361,8 @@ const HeaderOne = () => {
 
       {/* ==================== Mobile Menu Start Here ==================== */}
       <div
-        className={`mobile-menu scroll-sm d-lg-none d-block ${
-          menuActive && "active"
-        }`}
+        className={`mobile-menu scroll-sm d-lg-none d-block ${menuActive && "active"
+          }`}
       >
         <button
           onClick={() => {
@@ -308,17 +384,15 @@ const HeaderOne = () => {
               {/* Home Menu */}
               <li
                 onClick={() => handleMenuClick(0)}
-                className={`on-hover-item nav-menu__item has-submenu ${
-                  activeIndex === 0 ? "d-block" : ""
-                }`}
+                className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 0 ? "d-block" : ""
+                  }`}
               >
                 <Link to='#' className='nav-menu__link'>
                   Home
                 </Link>
                 <ul
-                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
-                    activeIndex === 0 ? "open" : ""
-                  }`}
+                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${activeIndex === 0 ? "open" : ""
+                    }`}
                 >
                   <li className='common-dropdown__item nav-submenu__item'>
                     <Link
@@ -355,17 +429,15 @@ const HeaderOne = () => {
               {/* Shop Menu */}
               <li
                 onClick={() => handleMenuClick(1)}
-                className={`on-hover-item nav-menu__item has-submenu ${
-                  activeIndex === 1 ? "d-block" : ""
-                }`}
+                className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 1 ? "d-block" : ""
+                  }`}
               >
                 <Link to='#' className='nav-menu__link'>
                   Shop
                 </Link>
                 <ul
-                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
-                    activeIndex === 1 ? "open" : ""
-                  }`}
+                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${activeIndex === 1 ? "open" : ""
+                    }`}
                 >
                   <li className='common-dropdown__item nav-submenu__item'>
                     <Link
@@ -403,9 +475,8 @@ const HeaderOne = () => {
               {/* Pages Menu */}
               <li
                 onClick={() => handleMenuClick(2)}
-                className={`on-hover-item nav-menu__item has-submenu ${
-                  activeIndex === 2 ? "d-block" : ""
-                }`}
+                className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 2 ? "d-block" : ""
+                  }`}
               >
                 <span className='badge-notification bg-warning-600 text-white text-sm py-2 px-8 rounded-4'>
                   New
@@ -414,9 +485,8 @@ const HeaderOne = () => {
                   Pages
                 </Link>
                 <ul
-                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
-                    activeIndex === 2 ? "open" : ""
-                  }`}
+                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${activeIndex === 2 ? "open" : ""
+                    }`}
                 >
                   <li className='common-dropdown__item nav-submenu__item'>
                     <Link
@@ -472,9 +542,8 @@ const HeaderOne = () => {
               {/* Vendors Menu */}
               <li
                 onClick={() => handleMenuClick(3)}
-                className={`on-hover-item nav-menu__item has-submenu ${
-                  activeIndex === 3 ? "d-block" : ""
-                }`}
+                className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 3 ? "d-block" : ""
+                  }`}
               >
                 <span className='badge-notification bg-tertiary-600 text-white text-sm py-2 px-8 rounded-4'>
                   New
@@ -483,9 +552,8 @@ const HeaderOne = () => {
                   Vendors
                 </Link>
                 <ul
-                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
-                    activeIndex === 3 ? "open" : ""
-                  }`}
+                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${activeIndex === 3 ? "open" : ""
+                    }`}
                 >
                   <li className='common-dropdown__item nav-submenu__item'>
                     <Link
@@ -529,17 +597,15 @@ const HeaderOne = () => {
               {/* Blog Menu */}
               <li
                 onClick={() => handleMenuClick(4)}
-                className={`on-hover-item nav-menu__item has-submenu ${
-                  activeIndex === 4 ? "d-block" : ""
-                }`}
+                className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 4 ? "d-block" : ""
+                  }`}
               >
                 <Link to='#' className='nav-menu__link'>
                   Blog
                 </Link>
                 <ul
-                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
-                    activeIndex === 4 ? "open" : ""
-                  }`}
+                  className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${activeIndex === 4 ? "open" : ""
+                    }`}
                 >
                   <li className='common-dropdown__item nav-submenu__item'>
                     <Link
@@ -581,7 +647,7 @@ const HeaderOne = () => {
       </div>
       {/* ==================== Mobile Menu End Here ==================== */}
 
-      
+
       {/* ======================= Middle Top Start ========================= */}
       <div className='header-top bg-main-600 flex-between'>
         <div className='container container-lg'>
@@ -744,8 +810,8 @@ const HeaderOne = () => {
                 </ul>
               </li> */}
               {/* <li className='on-hover-item border-right-item border-right-item-sm-space has-submenu arrow-white'> */}
-                {/* Display the selected currency */}
-                {/* <Link to='#' className='selected-text text-white text-sm py-8'>
+              {/* Display the selected currency */}
+              {/* <Link to='#' className='selected-text text-white text-sm py-8'>
                   {selectedCurrency}
                 </Link>
                 <ul className='selectable-text-list on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8'>
@@ -855,7 +921,7 @@ const HeaderOne = () => {
       </div>
 
 
-      
+
       {/* ======================= Middle Top End ========================= */}
       {/* ======================= Middle Header Start ========================= */}
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
@@ -923,7 +989,7 @@ const HeaderOne = () => {
                 <span className='text-gray-900 text-xl d-xs-flex d-none'>
                   <i className='ph ph-map-pin' />
                 </span> */}
-                {/* <div className='line-height-1'>
+              {/* <div className='line-height-1'>
                   <span className='text-gray-600 text-xs'>Your Location</span>
                   <div className='line-height-1'>
                     <select
@@ -985,11 +1051,56 @@ const HeaderOne = () => {
                   </span>
                 </Link> */}
                 <div className='d-flex align-items-center gap-8'>
+                  <div ref={cartMenuRef} className='position-relative me-8'>
+                    <button
+                      type='button'
+                      onClick={toggleCartMenu}
+                      className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
+                    >
+                      <span className='text-md fw-medium'>Cart</span>
+                      <span className='badge rounded-pill bg-main-600 text-white px-8 py-4'>
+                        {cartLoading ? '…' : cartCount}
+                      </span>
+                      <i className={`ph ${cartMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
+                    </button>
+                    {cartMenuOpen && (
+                      <div
+                        className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
+                        style={{ minWidth: 260, zIndex: 2100 }}
+                      >
+                        <div className='px-16 py-12 border-bottom border-gray-100 d-flex justify-content-between align-items-center'>
+                          <span className='fw-semibold text-gray-800'>Cart</span>
+                          <span className='text-sm text-gray-500'>{cartLoading ? 'Loading…' : `${cartCount} item${cartCount === 1 ? '' : 's'}`}</span>
+                        </div>
+                        <div className='max-h-260 overflow-auto'>
+                          {cartLoading && (
+                            <div className='px-16 py-12 text-sm text-gray-500'>Loading cart...</div>
+                          )}
+                          {!cartLoading && cartItems.length === 0 && (
+                            <div className='px-16 py-12 text-sm text-gray-500'>Your cart is empty</div>
+                          )}
+                          {!cartLoading && cartItems.slice(0, 5).map((item) => (
+                            <div key={item.id} className='px-16 py-10 d-flex align-items-center gap-10 border-bottom border-gray-100'>
+                              <img src={item.image || '/images/no-image.svg'} alt={item.name} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8 }} onError={(e) => { e.target.src = '/images/no-image.svg'; }} />
+                              <div className='flex-grow-1'>
+                                <div className='text-sm fw-semibold text-gray-800 text-truncate'>{item.name}</div>
+                                <div className='text-xs text-gray-500'>Qty: {item.quantity} · ${Number(item.price || 0).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className='px-16 py-12'>
+                          <Link to='/cart' onClick={() => setCartMenuOpen(false)} className='btn w-100 bg-main-600 text-white py-10 rounded-pill'>
+                            Go to Cart
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <div ref={accountMenuRef} className='position-relative me-8'>
                     <button
                       type='button'
                       onClick={toggleAccountMenu}
-                      // className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
                       className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
                     >
                       <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
@@ -1042,7 +1153,7 @@ const HeaderOne = () => {
                     type='button'
                     className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
                   >
-                    {walletAddress ? `${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+                    {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
                   </button>
                 </div>
               </div>
@@ -1076,14 +1187,13 @@ const HeaderOne = () => {
       </div>
       {/* ==================== Header Start Here ==================== */}
       <header
-        className={`header bg-white border-bottom border-gray-100 ${
-          scroll && "fixed-header"
-        }`}
+        className={`header bg-white border-bottom border-gray-100 ${scroll && "fixed-header"
+          }`}
       >
         <div className='container container-lg'>
           <nav className='header-inner d-flex justify-content-between gap-8'>
             <div className='flex-align menu-category-wrapper'>
-              
+
               <div className='category on-hover-item'>
                 {/* <button
                   onClick={handleCategoryToggle}
@@ -1099,9 +1209,8 @@ const HeaderOne = () => {
                   </span>
                 </button> */}
                 <div
-                  className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
-                    activeCategory && "active"
-                  }`}
+                  className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${activeCategory && "active"
+                    }`}
                 >
                   <button
                     onClick={() => {
@@ -1124,9 +1233,8 @@ const HeaderOne = () => {
                   <ul className='scroll-sm p-0 py-8 w-300 max-h-400 overflow-y-auto'>
                     <li
                       onClick={() => handleCatClick(0)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 0 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 0 ? "active" : ""
+                        }`}
                     >
                       <Link
                         onClick={() => setActiveIndexCat(null)}
@@ -1142,9 +1250,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 0 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 0 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Vegetables &amp; Fruit
@@ -1179,9 +1286,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(1)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 1 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 1 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1196,9 +1302,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 1 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 1 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Beverages
@@ -1227,9 +1332,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(2)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 2 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 2 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1244,9 +1348,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 2 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 2 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Meats &amp; Seafood
@@ -1269,9 +1372,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(3)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 3 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 3 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1286,9 +1388,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 3 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 3 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Breakfast &amp; Dairy
@@ -1317,9 +1418,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(4)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 4 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 4 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1334,9 +1434,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 4 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 4 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Frozen Foods
@@ -1362,9 +1461,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(5)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 5 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 5 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1379,9 +1477,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 5 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 5 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Biscuits &amp; Snacks
@@ -1410,9 +1507,8 @@ const HeaderOne = () => {
                     </li>
                     <li
                       onClick={() => handleCatClick(6)}
-                      className={`has-submenus-submenu ${
-                        activeIndexCat === 6 ? "active" : ""
-                      }`}
+                      className={`has-submenus-submenu ${activeIndexCat === 6 ? "active" : ""
+                        }`}
                     >
                       <Link
                         to='#'
@@ -1427,9 +1523,8 @@ const HeaderOne = () => {
                         </span>
                       </Link>
                       <div
-                        className={`submenus-submenu py-16 ${
-                          activeIndexCat === 6 ? "open" : ""
-                        }`}
+                        className={`submenus-submenu py-16 ${activeIndexCat === 6 ? "open" : ""
+                          }`}
                       >
                         <h6 className='text-lg px-16 submenus-submenu__title'>
                           Grocery &amp; Staples
