@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import query from "jquery";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -66,6 +66,16 @@ const HeaderOne = () => {
   const handleCatClick = (index) => {
     setActiveIndexCat(activeIndexCat === index ? null : index);
   };
+  // Auth / account dropdown
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    try {
+      return !!localStorage.getItem('userToken');
+    } catch (e) {
+      return false;
+    }
+  });
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
   // Wallet support
   const [walletAddress, setWalletAddress] = useState(null);
   const [preferredToken, setPreferredToken] = useState(() => {
@@ -189,6 +199,50 @@ const HeaderOne = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const syncLoginState = () => {
+      try {
+        setIsLoggedIn(!!localStorage.getItem('userToken'));
+      } catch (e) {
+        setIsLoggedIn(false);
+      }
+    };
+    const handleStorage = (event) => {
+      if (event.key === 'userToken') syncLoginState();
+    };
+    const handleAuthEvent = () => syncLoginState();
+    const handleClickOutside = (event) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+        setAccountMenuOpen(false);
+      }
+    };
+
+    syncLoginState();
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('authChanged', handleAuthEvent);
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('authChanged', handleAuthEvent);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  const toggleAccountMenu = () => setAccountMenuOpen((prev) => !prev);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('userToken');
+    } catch (e) {
+      console.error('Failed to clear auth token', e);
+    }
+    setIsLoggedIn(false);
+    setAccountMenuOpen(false);
+    window.dispatchEvent(new Event('authChanged'));
+    navigate('/');
+  };
 
   return (
     <>
@@ -931,10 +985,58 @@ const HeaderOne = () => {
                   </span>
                 </Link> */}
                 <div className='d-flex align-items-center gap-8'>
-                  <div className='btn-group d-inline-flex' role='group' aria-label='Select token'>
+                  <div ref={accountMenuRef} className='position-relative me-8'>
+                    <button
+                      type='button'
+                      onClick={toggleAccountMenu}
+                      // className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
+                      className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                    >
+                      <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
+                      <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
+                    </button>
+                    {accountMenuOpen && (
+                      <div
+                        className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
+                        style={{ minWidth: 200, zIndex: 2100 }}
+                      >
+                        <Link
+                          to='/account'
+                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                          onClick={() => setAccountMenuOpen(false)}
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          to='/purchased-products'
+                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                          onClick={() => setAccountMenuOpen(false)}
+                        >
+                          Orders
+                        </Link>
+                        <Link
+                          to='/wishlist'
+                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                          onClick={() => setAccountMenuOpen(false)}
+                        >
+                          Wishlist
+                        </Link>
+                        {isLoggedIn && (
+                          <button
+                            type='button'
+                            className='w-100 text-start px-16 py-10 text-gray-800 hover-bg-neutral-100 bg-transparent border-0'
+                            onClick={handleLogout}
+                          >
+                            Logout
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {/* <div className='btn-group d-inline-flex' role='group' aria-label='Select token'>
                     <button type='button' className={`btn btn-sm ${preferredToken === 'USDT' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDT')}>USDT</button>
                     <button type='button' className={`btn btn-sm ${preferredToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDC')}>USDC</button>
-                  </div>
+                  </div> */}
                   <button
                     onClick={connectWallet}
                     type='button'

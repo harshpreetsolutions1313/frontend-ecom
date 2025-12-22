@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Account = () => {
+  const navigate = useNavigate();
   // State to toggle between 'signin' and 'register' views
   const [isSignInView, setIsSignInView] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -12,6 +13,12 @@ const Account = () => {
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   // State for Register form data
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' });
+
+  useEffect(() => {
+    if (localStorage.getItem('userToken')) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
 
   // Handle input changes for both forms
   const handleSignInChange = (e) => {
@@ -45,11 +52,13 @@ const Account = () => {
       // *** MODIFIED: Store the token in Local Storage ***
       if (data.token) {
         localStorage.setItem('userToken', data.token);
+        window.dispatchEvent(new Event('authChanged'));
       }
 
       // Success handling (e.g., store token, redirect)
       setMessage('Sign in successful! Token stored in local storage.');
       console.log('Sign in successful:', data);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -80,6 +89,7 @@ const Account = () => {
       // *** Optional: If the backend returns a token immediately after signup, store it ***
       if (data.token) {
          localStorage.setItem('userToken', data.token);
+         window.dispatchEvent(new Event('authChanged'));
       }
       
       // Success handling
@@ -87,6 +97,9 @@ const Account = () => {
       console.log('Registration successful:', data);
       // Optionally switch to sign-in view after successful registration
       setIsSignInView(true);
+      if (data.token) {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err.message);
     } finally {
