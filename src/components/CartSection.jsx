@@ -240,29 +240,29 @@ const CartSection = () => {
       await connectWallet();
       if (!contract) return;
     }
-
+  
     const token = localStorage.getItem('userToken');
     if (!token) {
       navigate('/account');
       return;
     }
-
+  
     setBuyingId(item.id);
-
+  
     try {
-      const amount = ethers.parseUnits((item.price * item.quantity).toString(), 18);
-
+      const amount = ethers.parseUnits((item.price * item.quantity).toString(), 18); // 6 decimals for USDT/USDC
       const tokenContract = new ethers.Contract(
         selectedToken,
         ['function approve(address spender, uint256 amount) returns (bool)'],
         signer
       );
+
       const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, amount);
       await approveTx.wait();
-
+  
       const tx = await contract.createAndPayForOrder(item.id, amount, selectedToken);
       const receipt = await tx.wait();
-
+  
       const paymentEvent = receipt.logs
         .map((log) => {
           try {
@@ -272,7 +272,7 @@ const CartSection = () => {
           }
         })
         .find((e) => e?.name === 'PaymentReceived');
-
+  
         console.log("paymentEvent", paymentEvent);
 
       const onChainOrderId = paymentEvent ? paymentEvent.args.orderId.toString() : null;
@@ -280,19 +280,21 @@ const CartSection = () => {
       console.log("onChainOrderId", onChainOrderId);
       console.log("receipt", receipt);
       console.log("receipt hash", receipt.hash);
-
+  
       await axios.post(
         API_ENDPOINTS.ORDERS_CREATE,
         {
           productId: item.id,
           amount: item.price * item.quantity,
+          quantity: item.quantity, // Include quantity
           token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
           onChainOrderId,
           transactionHash: receipt.hash,
+          buyer: await signer.getAddress()
         },
         { headers: authHeaders() }
       );
-
+  
       toast.success('Order placed from cart');
       await handleRemove(item.id, false);
     } catch (err) {
@@ -302,25 +304,23 @@ const CartSection = () => {
       setBuyingId(null);
     }
   };
+  
 
   const handlePlaceOrder = async () => {
     if (!contract) {
       await connectWallet();
       if (!contract) return;
     }
-
-
+  
     if (items.length === 0) return;
-
+  
     setPlacingOrder(true);
-
+  
     try {
       const productIds = items.map((item) => item.id);
-      const amounts = items.map((item) =>
-        ethers.parseUnits((item.price * item.quantity).toString(), 18)
-      );
+      const amounts = items.map((item) => ethers.parseUnits((item.price * item.quantity).toString(), 18)); // 6 decimals for USDT/USDC
       const totalAmount = amounts.reduce((a, b) => a + b, 0n);
-
+  
       const tokenContract = new ethers.Contract(
         selectedToken,
         ['function approve(address spender, uint256 amount) returns (bool)'],
@@ -328,10 +328,10 @@ const CartSection = () => {
       );
       const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, totalAmount);
       await approveTx.wait();
-
+  
       const tx = await contract.createAndPayForMultipleOrders(productIds, amounts, selectedToken);
       const receipt = await tx.wait();
-
+  
       const paymentEvents = receipt.logs
         .map((log) => {
           try {
@@ -341,32 +341,34 @@ const CartSection = () => {
           }
         })
         .filter((e) => e?.name === 'PaymentReceived');
+  
       const onChainOrderIds = paymentEvents.map((e) => e.args.orderId.toString());
-
+  
       const orderItems = items.map((item, index) => ({
         productId: item.id,
-        quantity: item.quantity,
+        quantity: item.quantity, // Include quantity
         amount: item.price * item.quantity,
         onChainOrderId: onChainOrderIds[index] || null,
       }));
-
+  
       await axios.post(
-        API_ENDPOINTS.ORDERS_CREATE_BATCH || API_ENDPOINTS.ORDERS_CREATE,
+        API_ENDPOINTS.ORDERS_CREATE_BATCH,
         {
           items: orderItems,
           token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
           transactionHash: receipt.hash,
           totalAmount: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+          buyer: await signer.getAddress()
         },
         { headers: authHeaders() }
       );
-
+  
       toast.success(`Order placed for ${items.length} items & saved!`);
-
+  
       for (const item of items) {
         await handleRemove(item.id, false);
       }
-
+  
       fetchCart();
     } catch (err) {
       console.error(err);
@@ -375,6 +377,7 @@ const CartSection = () => {
       setPlacingOrder(false);
     }
   };
+  
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
