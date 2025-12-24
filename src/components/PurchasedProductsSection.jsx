@@ -16,7 +16,7 @@ const PurchasedProductsSection = () => {
     }
 
     try {
-      const response = await fetch('https://ecom-ionajna1b-harshpreets-projects-89314032.vercel.app/api/users/purchased-products', {
+      const response = await fetch('https://ecom-alr27qehf-harshpreets-projects-89314032.vercel.app//api/users/purchased-products', {
         headers: {
           'Authorization': `Bearer ${jwtToken}`,
           'Content-Type': 'application/json'
