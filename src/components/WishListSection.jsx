@@ -19,7 +19,7 @@ const WishListSection = () => {
     }
     
     try {
-      const response = await fetch('http://localhost:5000/api/products/wishlist', {
+      const response = await fetch('https://ecom-ionajna1b-harshpreets-projects-89314032.vercel.app/api/products/wishlist', {
         headers: {
           'Authorization': `Bearer ${jwtToken}`, // Attach the JWT token
           'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ const WishListSection = () => {
     console.log(`Removing item with ID: ${productId}`);
     // Example implementation idea:
     const jwtToken = localStorage.getItem('userToken');
-    fetch(`http://localhost:5000/api/products/wishlist/remove/${productId}`, { 
+    fetch(`https://ecom-ionajna1b-harshpreets-projects-89314032.vercel.app/api/products/wishlist/remove/${productId}`, { 
       method: 'POST', 
       headers: { 'Authorization': `Bearer ${jwtToken}` } 
     }).then(() => fetchWishlistItems()); // Re-fetch list after deletion
