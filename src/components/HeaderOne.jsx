@@ -4,8 +4,12 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { API_ENDPOINTS } from '../config/api';
+import { useWallet } from '../context/WalletContext';
+import toast from 'react-hot-toast'
 
 const HeaderOne = () => {
+
+  const { connectWallet, address } = useWallet();
 
   const [scroll, setScroll] = useState(false);
 
@@ -149,23 +153,34 @@ const HeaderOne = () => {
     }
   }, []);
 
-  const connectWallet = async () => {
+  // const connectWallet = async () => {
+  //   try {
+  //     if (!window.ethereum) {
+  //       alert('MetaMask not detected. Please install MetaMask.');
+  //       return;
+  //     }
+  //     await window.ethereum.request({ method: 'eth_requestAccounts' });
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const address = await signer.getAddress();
+  //     setWalletAddress(address);
+  //     // expose globally for other components to optionally use
+  //     window.currentAccount = address;
+  //     window.dispatchEvent(new CustomEvent('walletConnected', { detail: address }));
+  //   } catch (e) {
+  //     console.error('Wallet connection failed', e);
+  //     alert('Wallet connection failed');
+  //   }
+  // };
+
+  const handleConnectWallet = async () => {
     try {
-      if (!window.ethereum) {
-        alert('MetaMask not detected. Please install MetaMask.');
-        return;
-      }
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
+      await connectWallet();
+
+      console.log("this is the address", address);
       setWalletAddress(address);
-      // expose globally for other components to optionally use
-      window.currentAccount = address;
-      window.dispatchEvent(new CustomEvent('walletConnected', { detail: address }));
-    } catch (e) {
-      console.error('Wallet connection failed', e);
-      alert('Wallet connection failed');
+    } catch (err) {
+      toast.error(err.message);
     }
   };
 
@@ -1097,20 +1112,28 @@ const HeaderOne = () => {
                       </div>
                     )}
                   </div>
+
                   <div ref={accountMenuRef} className='position-relative me-8'>
+
                     <button
                       type='button'
                       onClick={toggleAccountMenu}
                       className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
                     >
+
                       <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
+
                       <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
+
                     </button>
+
                     {accountMenuOpen && (
+
                       <div
                         className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
                         style={{ minWidth: 200, zIndex: 2100 }}
                       >
+
                         <Link
                           to='/account'
                           className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
@@ -1118,6 +1141,7 @@ const HeaderOne = () => {
                         >
                           My Profile
                         </Link>
+                        
                         <Link
                           to='/purchased-products'
                           className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
@@ -1125,6 +1149,7 @@ const HeaderOne = () => {
                         >
                           Orders
                         </Link>
+
                         <Link
                           to='/wishlist'
                           className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
@@ -1132,6 +1157,7 @@ const HeaderOne = () => {
                         >
                           Wishlist
                         </Link>
+
                         {isLoggedIn && (
                           <button
                             type='button'
@@ -1141,7 +1167,9 @@ const HeaderOne = () => {
                             Logout
                           </button>
                         )}
+
                       </div>
+
                     )}
                   </div>
                   {/* <div className='btn-group d-inline-flex' role='group' aria-label='Select token'>
@@ -1149,7 +1177,7 @@ const HeaderOne = () => {
                     <button type='button' className={`btn btn-sm ${preferredToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDC')}>USDC</button>
                   </div> */}
                   <button
-                    onClick={connectWallet}
+                    onClick={handleConnectWallet}
                     type='button'
                     className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
                   >

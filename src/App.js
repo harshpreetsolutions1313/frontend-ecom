@@ -22,9 +22,13 @@ import WishlistPage from "./pages/WishlistPage";
 import PurchasedProductsSection from "./components/PurchasedProductsSection";
 import { Toaster } from 'react-hot-toast';
 import PurchasedProductsPage from "./pages/PurchasedProductsPage";
+import { WalletProvider } from './context/WalletContext';
 
 function App() {
   return (
+
+    <WalletProvider>
+
     <BrowserRouter>
       <RouteScrollToTop />
       <PhosphorIconInit />
@@ -64,6 +68,9 @@ function App() {
         /> */}
       </Routes>
     </BrowserRouter>
+
+    </WalletProvider>
+    
   );
 }
 
