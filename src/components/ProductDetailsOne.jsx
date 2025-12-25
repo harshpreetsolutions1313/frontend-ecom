@@ -122,7 +122,7 @@ const ProductDetailsOne = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/products/wishlist/add/${product.id}`,
+        `https://ecom-smoky-delta.vercel.app/api/products/wishlist/add/${product.id}`,
         {}, // Empty body if backend expects product ID only from URL
         {
           headers: {
