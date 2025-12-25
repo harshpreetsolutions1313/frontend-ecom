@@ -322,7 +322,9 @@ const HeaderOne = () => {
 
   const toggleAccountMenu = () => setAccountMenuOpen((prev) => !prev);
   const toggleCartMenu = () => setCartMenuOpen((prev) => !prev);
-  const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  // const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const cartCount = cartItems.length;
+
 
   const handleLogout = () => {
     try {
@@ -394,9 +396,9 @@ const HeaderOne = () => {
             <img src='assets/images/logo/logo.png' alt='Logo' />
           </Link>
           <div className='mobile-menu__menu'>
-            {/* Nav Menu Start */}
+            
             <ul className='nav-menu flex-align nav-menu--mobile'>
-              {/* Home Menu */}
+
               <li
                 onClick={() => handleMenuClick(0)}
                 className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 0 ? "d-block" : ""
@@ -441,7 +443,7 @@ const HeaderOne = () => {
                 </ul>
               </li>
 
-              {/* Shop Menu */}
+              
               <li
                 onClick={() => handleMenuClick(1)}
                 className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 1 ? "d-block" : ""
@@ -554,7 +556,7 @@ const HeaderOne = () => {
                 </ul>
               </li>
 
-              {/* Vendors Menu */}
+              
               <li
                 onClick={() => handleMenuClick(3)}
                 className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 3 ? "d-block" : ""
@@ -942,14 +944,7 @@ const HeaderOne = () => {
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
           <nav className='header-inner flex-between'>
-            {/* Logo Start */}
-            {/* <div className='logo'>
-              <Link to='/' className='link'>
-                <img src='assets/images/logo/logo.png' alt='Logo' />
-              </Link>
-            </div> */}
-            {/* Logo End  */}
-            {/* form location Start */}
+            
             <form
               onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
               className='flex-align flex-wrap form-location-wrapper'
@@ -1000,38 +995,9 @@ const HeaderOne = () => {
                   )}
                 </div>
               </div>
-              {/* <div className='location-box bg-white flex-align gap-8 py-6 px-16 rounded-pill border border-gray-100'>
-                <span className='text-gray-900 text-xl d-xs-flex d-none'>
-                  <i className='ph ph-map-pin' />
-                </span> */}
-              {/* <div className='line-height-1'>
-                  <span className='text-gray-600 text-xs'>Your Location</span>
-                  <div className='line-height-1'>
-                    <select
-                      defaultValue={1}
-                      className='js-example-basic-single border border-gray-200 border-end-0'
-                      name='state'
-                    >
-                      <option value={1}>Alabama</option>
-                      <option value={1}>Alaska</option>
-                      <option value={1}>Arizona</option>
-                      <option value={1}>Delaware</option>
-                      <option value={1}>Florida</option>
-                      <option value={1}>Georgia</option>
-                      <option value={1}>Hawaii</option>
-                      <option value={1}>Indiana</option>
-                      <option value={1}>Marzland</option>
-                      <option value={1}>Nevada</option>
-                      <option value={1}>New Jersey</option>
-                      <option value={1}>New Mexico</option>
-                      <option value={1}>New York</option>
-                    </select>
-                  </div>
-                </div> */}
-              {/* </div> */}
+              
             </form>
-            {/* form location start */}
-            {/* Header Middle Right start */}
+           
             <div className='header-right flex-align'>
               <div className='flex-align flex-wrap gap-12'>
                 <button
@@ -1042,29 +1008,10 @@ const HeaderOne = () => {
                     <i className='ph ph-magnifying-glass' />
                   </span>
                 </button>
-                {/* <Link to='/wishlist' className='flex-align gap-4 item-hover'>
-                  <span className='text-2xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text'>
-                    <i className='ph ph-heart' />
-                    <span className='w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4'>
-                      2
-                    </span>
-                  </span>
-                  <span className='text-md text-gray-500 item-hover__text d-none d-lg-flex'>
-                    Wishlist
-                  </span>
-                </Link> */}
+                
 
-                {/* <Link to='/cart' className='flex-align gap-4 item-hover'>
-                  <span className='text-2xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text'>
-                    <i className='ph ph-shopping-cart-simple' />
-                    <span className='w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4'>
-                      2
-                    </span>
-                  </span>
-                  <span className='text-md text-gray-500 item-hover__text d-none d-lg-flex'>
-                    Cart
-                  </span>
-                </Link> */}
+                
+                {/* button found */}
                 <div className='d-flex align-items-center gap-8'>
                   <div ref={cartMenuRef} className='position-relative me-8'>
                     <button
@@ -1172,10 +1119,7 @@ const HeaderOne = () => {
 
                     )}
                   </div>
-                  {/* <div className='btn-group d-inline-flex' role='group' aria-label='Select token'>
-                    <button type='button' className={`btn btn-sm ${preferredToken === 'USDT' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDT')}>USDT</button>
-                    <button type='button' className={`btn btn-sm ${preferredToken === 'USDC' ? 'btn-main-600 text-white' : 'btn-outline-main-600'}`} onClick={() => selectPreferredToken('USDC')}>USDC</button>
-                  </div> */}
+                  
                   <button
                     onClick={handleConnectWallet}
                     type='button'
@@ -1184,9 +1128,10 @@ const HeaderOne = () => {
                     {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
                   </button>
                 </div>
+                
               </div>
             </div>
-            {/* Header Middle Right End  */}
+  
           </nav>
         </div>
       </header>

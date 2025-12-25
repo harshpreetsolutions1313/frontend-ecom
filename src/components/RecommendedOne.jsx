@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
+// import { useNavigate } from 'react-router-dom';
 
 const RecommendedOne = () => {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ const RecommendedOne = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
     const [addingProductId, setAddingProductId] = useState(null);
+    // const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -70,6 +72,9 @@ const RecommendedOne = () => {
             }, { headers: { Authorization: `Bearer ${token}` } });
             toast.success('Added to cart');
             window.dispatchEvent(new Event('cartUpdated'));
+            setTimeout(() => {
+                navigate('/cart');
+              }, 1000);
         } catch (err) {
             console.error('Add to cart failed', err);
             const message = err?.response?.data?.message || err?.message || 'Failed to add to cart';

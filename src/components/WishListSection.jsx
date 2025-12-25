@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 // Assuming you are using react-router-dom for navigation
 import { Link } from "react-router-dom";
+import { API_ENDPOINTS } from '../config/api';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
 
 const WishListSection = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // Function to fetch wishlist items from the API
   const fetchWishlistItems = async () => {
@@ -19,7 +24,7 @@ const WishListSection = () => {
     }
     
     try {
-      const response = await fetch('https://ecom-alr27qehf-harshpreets-projects-89314032.vercel.app//api/products/wishlist', {
+      const response = await fetch('http://localhost:5000/api/products/wishlist', {
         headers: {
           'Authorization': `Bearer ${jwtToken}`, // Attach the JWT token
           'Content-Type': 'application/json'
@@ -47,20 +52,102 @@ const WishListSection = () => {
   }, []);
 
   // Placeholder functions for actions (You will need to implement API calls here)
-  const handleRemoveItem = (productId) => {
-    console.log(`Removing item with ID: ${productId}`);
-    // Example implementation idea:
+  // const handleRemoveItem = (productId) => {
+  //   console.log(`Removing item with ID: ${productId}`);
+  //   // Example implementation idea:
+  //   const jwtToken = localStorage.getItem('userToken');
+  //   fetch(`http://localhost:5000/api/products/wishlist/remove/${productId}`, { 
+  //     method: 'POST', 
+  //     headers: { 'Authorization': `Bearer ${jwtToken}` } 
+  //   }).then(() => fetchWishlistItems()); // Re-fetch list after deletion
+  // };
+
+  const handleRemoveItem = async (productId) => {
     const jwtToken = localStorage.getItem('userToken');
-    fetch(`https://ecom-alr27qehf-harshpreets-projects-89314032.vercel.app//api/products/wishlist/remove/${productId}`, { 
-      method: 'POST', 
-      headers: { 'Authorization': `Bearer ${jwtToken}` } 
-    }).then(() => fetchWishlistItems()); // Re-fetch list after deletion
+    try {
+      await fetch(`http://localhost:5000/api/products/wishlist/remove/${productId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${jwtToken}` },
+      });
+      fetchWishlistItems(); // Re-fetch wishlist after removal
+      // toast.success('Item removed from wishlist!');
+    } catch (err) {
+      toast.error('Failed to remove item from wishlist');
+    }
   };
 
-  const handleAddToCart = (productId) => {
-    console.log(`Adding item with ID: ${productId} to cart`);
-    // Implement API call to add item to cart
+  // const handleAddToCart = async (productId) => {
+  //   const jwtToken = localStorage.getItem('userToken');
+  //   if (!jwtToken) {
+  //     setError('User not authenticated. Please log in.');
+  //     return;
+  //   }
+  
+  //   try {
+  //     const response = await fetch(API_ENDPOINTS.CART, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Authorization': `Bearer ${jwtToken}`,
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         productId: productId,
+  //         quantity: 1, // Default quantity, you can adjust as needed
+  //       }),
+  //     });
+  
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.message || 'Failed to add item to cart');
+  //     }
+  
+  //     const data = await response.json();
+  //     alert('Item added to cart successfully!'); // Or use a toast/notification
+  //     // Optionally, you can update the UI or refetch the wishlist
+  //   } catch (err) {
+  //     setError(err.message);
+  //   }
+  // };
+
+  const handleAddToCart = async (productId) => {
+    const jwtToken = localStorage.getItem('userToken');
+    if (!jwtToken) {
+      toast.error('User not authenticated. Please log in.');
+      return;
+    }
+  
+    try {
+      // Add to cart
+      const cartResponse = await fetch(API_ENDPOINTS.CART, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          quantity: 1,
+        }),
+      });
+  
+      if (!cartResponse.ok) {
+        const errorData = await cartResponse.json();
+        throw new Error(errorData.message || 'Failed to add item to cart');
+      }
+  
+      // Remove from wishlist
+      await handleRemoveItem(productId);
+      toast.success('Item added to cart and removed from wishlist!');
+
+      setTimeout(() => {
+        navigate('/cart');
+      }, 1000);
+
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
+  
 
   if (loading) {
     return <section className='cart py-80'><div className="container container-lg">Loading wishlist...</div></section>;

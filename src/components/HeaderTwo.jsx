@@ -643,7 +643,7 @@ const HeaderTwo = ({ category }) => {
                     <i className='ph ph-user' />
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
-                    Profilee
+                    Profile
                   </span>
                 </Link>
                 <Link
@@ -660,21 +660,19 @@ const HeaderTwo = ({ category }) => {
                     Wishlist
                   </span>
                 </Link>
-                <Link
+                {/* <Link
                   to='/purchased-products'
                   className='flex-align flex-column gap-8 item-hover-two'
                 >
                   <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
-                    {/* <i className='ph-fill ph-shuffle' /> */}
+                    
                     <i className='ph-fill ph-cube' />
-                    {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
-                      2
-                    </span> */}
+                    
                   </span>
                   <span className='text-md text-white item-hover__text d-none d-lg-flex'>
                     Purchased Products
                   </span>
-                </Link>
+                </Link> */}
                 <Link
                   to='/cart'
                   className='flex-align flex-column gap-8 item-hover-two'

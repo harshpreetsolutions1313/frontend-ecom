@@ -5,10 +5,12 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { getCountdown } from '../helper/Countdown';
 import { API_ENDPOINTS } from '../config/api';
+import { useNavigate } from 'react-router-dom';
 
 const ProductDetailsOne = () => {
   const [timeLeft, setTimeLeft] = useState(getCountdown());
   const { id: paramId } = useParams();
+  const navigate = useNavigate();
 
   // support id passed via route param or querystring or pathname fallback
   const getIdFromLocation = () => {
@@ -18,7 +20,7 @@ const ProductDetailsOne = () => {
       const parts = window.location.pathname.split('/').filter(Boolean);
       const last = parts[parts.length - 1];
       if (last && last !== 'product-details') return last;
-    } catch (e) {}
+    } catch (e) { }
     return null;
   };
 
@@ -39,11 +41,11 @@ const ProductDetailsOne = () => {
   const productImages = product?.images && product.images.length
     ? product.images
     : [
-        "assets/images/thumbs/product-details-thumb1.png",
-        "assets/images/thumbs/product-details-thumb2.png",
-        "assets/images/thumbs/product-details-thumb3.png",
-        "assets/images/thumbs/product-details-thumb2.png",
-      ];
+      "assets/images/thumbs/product-details-thumb1.png",
+      "assets/images/thumbs/product-details-thumb2.png",
+      "assets/images/thumbs/product-details-thumb3.png",
+      "assets/images/thumbs/product-details-thumb2.png",
+    ];
 
   // increment & decrement
   const [quantity, setQuantity] = useState(1);
@@ -120,7 +122,7 @@ const ProductDetailsOne = () => {
 
     try {
       const response = await axios.post(
-        `https://ecom-alr27qehf-harshpreets-projects-89314032.vercel.app//api/products/wishlist/add/${product.id}`,
+        `http://localhost:5000/api/products/wishlist/add/${product.id}`,
         {}, // Empty body if backend expects product ID only from URL
         {
           headers: {
@@ -143,6 +145,60 @@ const ProductDetailsOne = () => {
       }
     }
   };
+
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log("Inside Add to Cart function")
+
+    const token = localStorage.getItem('userToken');
+
+    if (!token) {
+      toast.error('Please login to add to cart');
+      return;
+    }
+
+    if (!product?.id) {
+      toast.error('Product information not available');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        API_ENDPOINTS.CART,
+        {
+          productId: product.id,
+          quantity: quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200 || response.data.success) {
+        toast.success('Added to cart!');
+      }
+
+      setTimeout(() => {
+        navigate('/cart');
+      }, 1000);
+
+    } catch (err) {
+
+      console.error('Cart error:', err);
+
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error('Failed to add to cart');
+      }
+    }
+  };
+
 
   if (loading) {
     return (
@@ -247,20 +303,35 @@ const ProductDetailsOne = () => {
                   </div>
 
                   <span className="text-gray-900 d-block mb-8">Quantity:</span>
+
                   <div className="flex-between gap-16 flex-wrap">
                     <div className="flex-align flex-wrap gap-16">
                       <div className="border border-gray-100 rounded-pill py-9 px-16 flex-align">
+
                         <button onClick={decrementQuantity} type="button" className="quantity__minus p-4 text-gray-700 hover-text-main-600 flex-center">
                           <i className="ph ph-minus" />
                         </button>
+
                         <input type="number" className="quantity__input border-0 text-center w-32" value={quantity} readOnly />
+
                         <button onClick={incrementQuantity} type="button" className="quantity__plus p-4 text-gray-700 hover-text-main-600 flex-center">
                           <i className="ph ph-plus" />
                         </button>
+
                       </div>
-                      <Link to="#" className="btn btn-main rounded-pill flex-align d-inline-flex gap-8 px-48">
+
+                      {/* <Link to="#" className="btn btn-main rounded-pill flex-align d-inline-flex gap-8 px-48">
                         <i className="ph ph-shopping-cart" /> Add To Cart
-                      </Link>
+                      </Link> */}
+
+                      <button
+                        onClick={handleAddToCart}
+                        className="btn btn-main rounded-pill flex-align d-inline-flex gap-8 px-48"
+                      >
+                        <i className="ph ph-shopping-cart" /> Add To Cart
+                      </button>
+
+
                     </div>
 
                     <div className="flex-align gap-12">
@@ -268,11 +339,10 @@ const ProductDetailsOne = () => {
                       <button
                         onClick={handleAddToWishlist}
                         disabled={isWishlisted}
-                        className={`w-52 h-52 flex-center rounded-circle transition-all ${
-                          isWishlisted
+                        className={`w-52 h-52 flex-center rounded-circle transition-all ${isWishlisted
                             ? 'bg-main-600 text-white'
                             : 'bg-main-50 text-main-600 hover-bg-main-600 hover-text-white'
-                        }`}
+                          }`}
                         title={isWishlisted ? 'Already in wishlist' : 'Add to wishlist'}
                       >
                         <i className={`ph text-xl ${isWishlisted ? 'ph-fill ph-heart' : 'ph-heart'}`} />
