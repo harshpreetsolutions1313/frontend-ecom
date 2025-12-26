@@ -16,7 +16,7 @@ const PurchasedProductsSection = () => {
     }
 
     try {
-      const response = await fetch('https://ecom-smoky-delta.vercel.app/api/users/purchased-products', {
+      const response = await fetch('https://backend-ecom-liart.vercel.app/api/users/purchased-products', {
         headers: {
           'Authorization': `Bearer ${jwtToken}`,
           'Content-Type': 'application/json'

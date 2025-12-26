@@ -24,7 +24,7 @@ const WishListSection = () => {
     }
     
     try {
-      const response = await fetch('https://ecom-smoky-delta.vercel.app/api/products/wishlist', {
+      const response = await fetch('https://backend-ecom-liart.vercel.app/api/products/wishlist', {
         headers: {
           'Authorization': `Bearer ${jwtToken}`, // Attach the JWT token
           'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ const WishListSection = () => {
   //   console.log(`Removing item with ID: ${productId}`);
   //   // Example implementation idea:
   //   const jwtToken = localStorage.getItem('userToken');
-  //   fetch(`https://ecom-smoky-delta.vercel.app/api/products/wishlist/remove/${productId}`, { 
+  //   fetch(`https://backend-ecom-liart.vercel.app/api/products/wishlist/remove/${productId}`, { 
   //     method: 'POST', 
   //     headers: { 'Authorization': `Bearer ${jwtToken}` } 
   //   }).then(() => fetchWishlistItems()); // Re-fetch list after deletion
@@ -65,7 +65,7 @@ const WishListSection = () => {
   const handleRemoveItem = async (productId) => {
     const jwtToken = localStorage.getItem('userToken');
     try {
-      await fetch(`https://ecom-smoky-delta.vercel.app/api/products/wishlist/remove/${productId}`, {
+      await fetch(`https://backend-ecom-liart.vercel.app/api/products/wishlist/remove/${productId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${jwtToken}` },
       });
