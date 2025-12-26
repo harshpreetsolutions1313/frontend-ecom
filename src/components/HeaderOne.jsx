@@ -340,8 +340,27 @@ const HeaderOne = () => {
 
   return (
     <>
-      <div className='overlay' />
+      <style>
 
+        {`
+          @media (max-width: 991px) {
+            .header-inner { gap: 8px !important; }
+            .form-location-wrapper { flex: 1; min-width: 0; }
+            .search-form__input {
+              font-size: 14px;
+              padding: 10px 40px 10px 12px !important;
+            }
+            .header-right { flex-shrink: 0; }
+            .categories-inner {
+              flex-wrap: nowrap;
+              -webkit-overflow-scrolling: touch;
+            }
+            .categories-inner > a { flex-shrink: 0; }
+          }
+        `}
+
+      </style>
+      <div className='overlay' />
       <div
         className={`side-overlay ${(menuActive || activeCategory) && "show"}`}
       />
@@ -396,7 +415,7 @@ const HeaderOne = () => {
             <img src='assets/images/logo/logo.png' alt='Logo' />
           </Link>
           <div className='mobile-menu__menu'>
-            
+
             <ul className='nav-menu flex-align nav-menu--mobile'>
 
               <li
@@ -443,7 +462,7 @@ const HeaderOne = () => {
                 </ul>
               </li>
 
-              
+
               <li
                 onClick={() => handleMenuClick(1)}
                 className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 1 ? "d-block" : ""
@@ -556,7 +575,7 @@ const HeaderOne = () => {
                 </ul>
               </li>
 
-              
+
               <li
                 onClick={() => handleMenuClick(3)}
                 className={`on-hover-item nav-menu__item has-submenu ${activeIndex === 3 ? "d-block" : ""
@@ -944,12 +963,24 @@ const HeaderOne = () => {
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
           <nav className='header-inner flex-between'>
-            
+
+            {/* ADD LOGO HERE - Before the search form */}
+            <div className='logo d-lg-none d-block me-3'>
+              <Link to='/'>
+                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '40px' }} />
+              </Link>
+            </div>
+
             <form
               onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
-              className='flex-align flex-wrap form-location-wrapper'
+              // className='flex-align flex-wrap form-location-wrapper'
+              className='flex-align flex-wrap form-location-wrapper flex-grow-1'
             >
-              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none' style={{ position: 'relative' }}>
+
+              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-flex' style={{ position: 'relative', width: '100%' }}>
+
+                {/* <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none' style={{ position: 'relative' }}> */}
+
                 <div className='search-form__wrapper position-relative w-100'>
                   <input
                     value={searchQuery}
@@ -995,11 +1026,14 @@ const HeaderOne = () => {
                   )}
                 </div>
               </div>
-              
+
             </form>
-           
+
             <div className='header-right flex-align'>
-              <div className='flex-align flex-wrap gap-12'>
+              <div
+                className='d-flex align-items-center gap-2 flex-nowrap'
+              // className='flex-align flex-wrap gap-12'
+              >
                 <button
                   type='button'
                   className='search-icon flex-align d-lg-none d-flex gap-4 item-hover'
@@ -1008,18 +1042,25 @@ const HeaderOne = () => {
                     <i className='ph ph-magnifying-glass' />
                   </span>
                 </button>
-                
 
-                
+
+
                 {/* button found */}
                 <div className='d-flex align-items-center gap-8'>
                   <div ref={cartMenuRef} className='position-relative me-8'>
                     <button
                       type='button'
                       onClick={toggleCartMenu}
-                      className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
+                      // className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
+                      className='bg-white border border-gray-100 text-gray-800 py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4 shadow-sm'
                     >
-                      <span className='text-md fw-medium'>Cart</span>
+                      <span
+                        // className='text-md fw-medium'
+                        className='text-md fw-medium d-none d-sm-inline'
+                      >Cart</span>
+                      <span className='text-md fw-medium d-sm-none'>
+                        <i className='ph ph-shopping-cart' />  {/* ADD: Icon for mobile */}
+                      </span>
                       <span className='badge rounded-pill bg-main-600 text-white px-8 py-4'>
                         {cartLoading ? '…' : cartCount}
                       </span>
@@ -1065,10 +1106,16 @@ const HeaderOne = () => {
                     <button
                       type='button'
                       onClick={toggleAccountMenu}
-                      className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                      // className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                      className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'
                     >
 
-                      <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
+                      {/* <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span> */}
+                      <span className='text-md fw-medium d-none d-sm-inline'>{isLoggedIn ? 'Account' : 'Login'}</span>
+
+                      <span className='d-sm-none'>
+                        <i className='ph ph-user' />  {/* ADD: Icon for mobile */}
+                      </span>
 
                       <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
 
@@ -1088,7 +1135,7 @@ const HeaderOne = () => {
                         >
                           My Profile
                         </Link>
-                        
+
                         <Link
                           to='/purchased-products'
                           className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
@@ -1119,19 +1166,28 @@ const HeaderOne = () => {
 
                     )}
                   </div>
-                  
+
                   <button
                     onClick={handleConnectWallet}
                     type='button'
-                    className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                    // className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
+                    className='bg-main-600 text-white py-8 px-8 rounded-pill d-inline-flex align-items-center text-sm'
                   >
-                    {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+                    {/* {walletAddress 
+                    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+                     : 'Connect Wallet'} */}
+
+                    {walletAddress
+                      ? `${walletAddress.slice(0, 2)}...${walletAddress.slice(-3)}`
+                      : <><i className='ph ph-wallet me-1' /><span className='d-none d-sm-inline'>Connect</span></>
+                    }
+
                   </button>
                 </div>
-                
+
               </div>
             </div>
-  
+
           </nav>
         </div>
       </header>
@@ -1139,7 +1195,12 @@ const HeaderOne = () => {
       {/* ======================= Categories Bar (secondary nav) ========================= */}
       <div className='categories-bar bg-white border-bottom'>
         <div className='container container-lg'>
-          <nav className='categories-inner d-flex flex-wrap align-items-center gap-12' style={{ padding: '8px 0' }}>
+          {/* <nav className='categories-inner d-flex flex-wrap align-items-center gap-12' style={{ padding: '8px 0' }}> */}
+          <nav className='categories-inner d-flex align-items-center gap-12 overflow-auto' style={{ padding: '8px 0', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>  {/* ADD: overflow-auto and scrollbar styles */}
+
+          <style>{`.categories-inner::-webkit-scrollbar { display: none; }`}</style>  
+          {/* ADD: Hide scrollbar */}
+
             {categoriesLoading ? (
               <div className='text-sm text-gray-500'>Loading categories...</div>
             ) : (
