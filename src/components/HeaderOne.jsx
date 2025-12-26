@@ -320,6 +320,20 @@ const HeaderOne = () => {
     return () => window.removeEventListener('cartUpdated', onCartUpdated);
   }, [fetchCartItems]);
 
+  useEffect(() => {
+  const handleGlobalClick = (e) => {
+    if (cartMenuRef.current && !cartMenuRef.current.contains(e.target)) {
+      setCartMenuOpen(false);
+    }
+    if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
+      setAccountMenuOpen(false);
+    }
+  };
+  
+  document.addEventListener('click', handleGlobalClick);
+  return () => document.removeEventListener('click', handleGlobalClick);
+}, []);
+
   const toggleAccountMenu = () => setAccountMenuOpen((prev) => !prev);
   const toggleCartMenu = () => setCartMenuOpen((prev) => !prev);
   // const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
@@ -963,71 +977,84 @@ const HeaderOne = () => {
       {/* ======================= Middle Header Start ========================= */}
       {/* ======================= Middle Header Start ========================= */}
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
+        <style>{`
+  .header-middle { position: relative; z-index: 100; }
+  .header-right { position: relative; z-index: 2200 !important; }
+  .search-dropdown { z-index: 2000 !important; }
+  @media (max-width: 991px) {
+    .common-dropdown { 
+      max-width: calc(100vw - 32px) !important;
+      right: 8px !important;
+    }
+  }
+`}</style>
+
         <div className='container container-lg'>
           {/* Desktop & Tablet Layout - Everything in one row */}
-          <nav className='header-inner d-none d-lg-flex align-items-center' style={{ gap: '8px' }}>
+
+          <nav className='header-inner d-none d-lg-flex align-items-center' style={{ gap: '16px', position: 'relative', zIndex: 10 }}>
             <form
               onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
-              className='flex-align flex-wrap form-location-wrapper'
-              style={{ flex: 1, minWidth: 0 }}
+              style={{ flex: 1, minWidth: 0, position: 'relative' }}
             >
-              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form' style={{ position: 'relative', width: '100%' }}>
-                <div className='search-form__wrapper position-relative w-100'>
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => { if (searchResults.length) setShowSearchDropdown(true); }}
-                    onBlur={() => { setTimeout(() => setShowSearchDropdown(false), 200); }}
-                    type='text'
-                    className='search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44'
-                    placeholder='Search for a product or brand'
-                    aria-label='Search products'
-                  />
-                  <button
-                    type='submit'
-                    className='w-32 h-32 bg-main-600 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8'
-                  >
-                    <i className='ph ph-magnifying-glass' />
-                  </button>
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => { if (searchResults.length) setShowSearchDropdown(true); }}
+                  onBlur={() => { setTimeout(() => setShowSearchDropdown(false), 200); }}
+                  type='text'
+                  className='search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44'
+                  placeholder='Search for a product or brand'
+                  aria-label='Search products'
+                  style={{ width: '100%', paddingRight: '50px' }}
+                />
+                <button
+                  type='submit'
+                  className='w-32 h-32 bg-main-600 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8'
+                  style={{ border: 'none', cursor: 'pointer' }}
+                >
+                  <i className='ph ph-magnifying-glass' />
+                </button>
 
-                  {showSearchDropdown && (
-                    <div className='search-dropdown common-dropdown position-absolute bg-white shadow-sm' style={{ top: '56px', left: 0, right: 0, zIndex: 2000 }}>
-                      <div className='px-12 py-8'>
-                        {searchLoading && <div className='text-sm text-gray-500'>Searching...</div>}
-                        {searchError && <div className='text-sm text-danger'>{searchError}</div>}
-                        {!searchLoading && searchResults.length === 0 && <div className='text-sm text-gray-500'>No results</div>}
-                        <ul className='list-unstyled mb-0'>
-                          {searchResults.slice(0, 6).map((p) => (
-                            <li key={p._id} className='d-flex gap-12 align-items-center py-8 border-bottom'>
-                              <Link to={`/product-details/${p._id}`} onClick={() => setShowSearchDropdown(false)} className='d-flex gap-12 align-items-center text-inherit'>
-                                <img src={p.images?.[0] || '/images/no-image.svg'} alt={p.name} style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} onError={(e) => e.target.src = '/images/no-image.svg'} />
-                                <div>
-                                  <div className='text-sm fw-medium'>{p.name}</div>
-                                  <div className='text-xs text-gray-500'>${Number(p.price).toFixed(2)}</div>
-                                </div>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        <div className='text-end mt-8'>
-                          <Link to={`/shop?search=${encodeURIComponent(searchQuery)}`} onClick={() => setShowSearchDropdown(false)} className='text-sm text-main-600'>See all results →</Link>
-                        </div>
+                {showSearchDropdown && (
+                  <div className='search-dropdown common-dropdown position-absolute bg-white shadow-sm' style={{ top: '56px', left: 0, right: 0, zIndex: 3000, border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                    <div className='px-12 py-8'>
+                      {searchLoading && <div className='text-sm text-gray-500'>Searching...</div>}
+                      {searchError && <div className='text-sm text-danger'>{searchError}</div>}
+                      {!searchLoading && searchResults.length === 0 && <div className='text-sm text-gray-500'>No results</div>}
+                      <ul className='list-unstyled mb-0'>
+                        {searchResults.slice(0, 6).map((p) => (
+                          <li key={p._id} className='d-flex gap-12 align-items-center py-8 border-bottom'>
+                            <Link to={`/product-details/${p._id}`} onClick={() => setShowSearchDropdown(false)} className='d-flex gap-12 align-items-center text-inherit'>
+                              <img src={p.images?.[0] || '/images/no-image.svg'} alt={p.name} style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} onError={(e) => e.target.src = '/images/no-image.svg'} />
+                              <div>
+                                <div className='text-sm fw-medium'>{p.name}</div>
+                                <div className='text-xs text-gray-500'>${Number(p.price).toFixed(2)}</div>
+                              </div>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className='text-end mt-8'>
+                        <Link to={`/shop?search=${encodeURIComponent(searchQuery)}`} onClick={() => setShowSearchDropdown(false)} className='text-sm text-main-600'>See all results →</Link>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </form>
 
-            <div className='header-right flex-align'>
+            <div className='header-right flex-align' style={{ position: 'relative', zIndex: 3500, flexShrink: 0 }}>
               <div className='flex-align flex-wrap gap-12'>
                 <div className='d-flex align-items-center gap-8'>
                   {/* Cart Button */}
-                  <div ref={cartMenuRef} className='position-relative me-8'>
+                  <div ref={cartMenuRef} className='position-relative me-8' style={{ zIndex: 3500 }}>
                     <button
                       type='button'
-                      onClick={toggleCartMenu}
+                      onClick={(e) => { e.stopPropagation(); toggleCartMenu(); }}
                       className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
+                      style={{ cursor: 'pointer', position: 'relative', zIndex: 3500 }}
                     >
                       <span className='text-md fw-medium'>Cart</span>
                       <span className='badge rounded-pill bg-main-600 text-white px-8 py-4'>
@@ -1035,9 +1062,19 @@ const HeaderOne = () => {
                       </span>
                       <i className={`ph ${cartMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
                     </button>
-                    {/* Cart dropdown - keep as is */}
+
                     {cartMenuOpen && (
-                      <div className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden' style={{ minWidth: 260, zIndex: 2100 }}>
+                      <div
+                        className='common-dropdown position-absolute bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
+                        style={{
+                          minWidth: 260,
+                          right: 0,
+                          top: 'calc(100% + 8px)',
+                          zIndex: 4000,
+                          boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className='px-16 py-12 border-bottom border-gray-100 d-flex justify-content-between align-items-center'>
                           <span className='fw-semibold text-gray-800'>Cart</span>
                           <span className='text-sm text-gray-500'>{cartLoading ? 'Loading…' : `${cartCount} item${cartCount === 1 ? '' : 's'}`}</span>
@@ -1063,14 +1100,29 @@ const HeaderOne = () => {
                   </div>
 
                   {/* Account Button */}
-                  <div ref={accountMenuRef} className='position-relative me-8'>
-                    <button type='button' onClick={toggleAccountMenu} className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'>
+                  <div ref={accountMenuRef} className='position-relative me-8' style={{ zIndex: 3500 }}>
+                    <button
+                      type='button'
+                      onClick={(e) => { e.stopPropagation(); toggleAccountMenu(); }}
+                      className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'
+                      style={{ cursor: 'pointer', position: 'relative', zIndex: 3500 }}
+                    >
                       <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
                       <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
                     </button>
-                    {/* Account dropdown - keep as is */}
+
                     {accountMenuOpen && (
-                      <div className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden' style={{ minWidth: 200, zIndex: 2100 }}>
+                      <div
+                        className='common-dropdown position-absolute bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
+                        style={{
+                          minWidth: 200,
+                          right: 0,
+                          top: 'calc(100% + 8px)',
+                          zIndex: 4000,
+                          boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Link to='/account' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>My Profile</Link>
                         <Link to='/purchased-products' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>Orders</Link>
                         <Link to='/wishlist' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>Wishlist</Link>
@@ -1080,7 +1132,12 @@ const HeaderOne = () => {
                   </div>
 
                   {/* Wallet Button */}
-                  <button onClick={handleConnectWallet} type='button' className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'>
+                  <button
+                    onClick={handleConnectWallet}
+                    type='button'
+                    className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'
+                    style={{ cursor: 'pointer', zIndex: 3500 }}
+                  >
                     {address ? (<span className='text-md fw-medium'>{`${address.slice(0, 6)}...${address.slice(-4)}`}</span>) : (<span className='text-md fw-medium'>Connect Wallet</span>)}
                   </button>
                 </div>
@@ -1109,31 +1166,34 @@ const HeaderOne = () => {
               {/* Right Side Buttons */}
               <div className='d-flex align-items-center' style={{ gap: '8px', flexShrink: 0 }}>  {/* CHANGE: gap from 6px to 8px */}
                 {/* Cart Button */}
+
+                {/* Cart Button */}
                 <div ref={cartMenuRef} className='position-relative'>
                   <button
                     type='button'
-                    onClick={toggleCartMenu}
+                    onClick={(e) => { e.stopPropagation(); toggleCartMenu(); }}
                     className='bg-white border border-gray-100 text-gray-800 py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm'
-                    style={{ fontSize: '14px', minHeight: '40px' }}  
+                    style={{ fontSize: '14px', minHeight: '40px', cursor: 'pointer' }}
                   >
-                    <i className='ph ph-shopping-cart' style={{ fontSize: '18px' }} />  {/* ADD: fontSize for icon */}
-                    <span className='badge rounded-pill bg-main-600 text-white' style={{ fontSize: '11px', padding: '3px 7px' }}>  {/* CHANGE: increased padding */}
+                    <i className='ph ph-shopping-cart' style={{ fontSize: '18px' }} />
+                    <span className='badge rounded-pill bg-main-600 text-white' style={{ fontSize: '11px', padding: '3px 7px' }}>
                       {cartLoading ? '…' : cartCount}
                     </span>
                   </button>
 
-                  {/* Cart Dropdown - keep as is */}
                   {cartMenuOpen && (
                     <div
                       className='common-dropdown position-absolute bg-white border border-gray-100 rounded-3 shadow-sm overflow-hidden'
                       style={{
                         minWidth: '280px',
-                        maxWidth: '90vw',
-                        right: 0,
+                        maxWidth: 'calc(100vw - 40px)',
+                        right: '-8px',
                         top: '100%',
                         marginTop: '8px',
-                        zIndex: 2100
+                        zIndex: 9999,
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
                       }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <div className='px-3 py-2 border-bottom border-gray-100 d-flex justify-content-between align-items-center'>
                         <span className='fw-semibold text-gray-800' style={{ fontSize: '14px' }}>Cart</span>
@@ -1182,8 +1242,8 @@ const HeaderOne = () => {
                   <button
                     type='button'
                     onClick={toggleAccountMenu}
-                    className='bg-main-600 text-white py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2'  
-                    style={{ fontSize: '14px', minHeight: '40px' }}  
+                    className='bg-main-600 text-white py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2'
+                    style={{ fontSize: '14px', minHeight: '40px' }}
                   >
                     <i className='ph ph-user' style={{ fontSize: '18px' }} />  {/* ADD: fontSize for icon */}
                     <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} style={{ fontSize: '14px' }} />  {/* CHANGE: increased from 12px */}
@@ -1244,7 +1304,7 @@ const HeaderOne = () => {
                   onClick={handleConnectWallet}
                   type='button'
                   className='bg-main-600 text-white py-2 px-3 rounded-pill d-inline-flex align-items-center gap-1'
-                  style={{ fontSize: '12px', whiteSpace: 'nowrap', minHeight: '40px' }}  
+                  style={{ fontSize: '12px', whiteSpace: 'nowrap', minHeight: '40px' }}
                 >
                   {address ? (
                     `${address.slice(0, 4)}...${address.slice(-3)}`
