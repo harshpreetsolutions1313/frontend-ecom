@@ -959,35 +959,19 @@ const HeaderOne = () => {
 
 
       {/* ======================= Middle Top End ========================= */}
+
+      {/* ======================= Middle Header Start ========================= */}
       {/* ======================= Middle Header Start ========================= */}
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
-          {/* <nav className='header-inner flex-between'> */}
-          <nav className='header-inner d-flex align-items-center' style={{gap: '8px'}}>  {/* CHANGE: from flex-between to d-flex align-items-center with gap */}
-
-            {/* ADD LOGO HERE - Before the search form */}
-
-            <div 
-            // className='logo d-lg-none d-block me-3'
-            className='d-lg-none d-block' style={{flexShrink: 0}}
-            >
-
-            {/* <div className='d-lg-none d-block' style={{flexShrink: 0}}></div> */}
-              <Link to='/'>
-                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '32px' }} />
-              </Link>
-            </div>
-
+          {/* Desktop & Tablet Layout - Everything in one row */}
+          <nav className='header-inner d-none d-lg-flex align-items-center' style={{ gap: '8px' }}>
             <form
               onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
-              // className='flex-align flex-wrap form-location-wrapper'
-              className='flex-align flex-wrap form-location-wrapper flex-grow-1'
+              className='flex-align flex-wrap form-location-wrapper'
+              style={{ flex: 1, minWidth: 0 }}
             >
-
-              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-flex' style={{ position: 'relative', width: '100%' }}>
-
-                {/* <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none' style={{ position: 'relative' }}> */}
-
+              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form' style={{ position: 'relative', width: '100%' }}>
                 <div className='search-form__wrapper position-relative w-100'>
                   <input
                     value={searchQuery}
@@ -1033,62 +1017,34 @@ const HeaderOne = () => {
                   )}
                 </div>
               </div>
-
             </form>
 
             <div className='header-right flex-align'>
-              <div
-                className='d-flex align-items-center gap-2 flex-nowrap'
-              // className='flex-align flex-wrap gap-12'
-              >
-                <button
-                  type='button'
-                  className='search-icon flex-align d-lg-none d-flex gap-4 item-hover'
-                >
-                  <span className='text-2xl text-gray-700 d-flex position-relative item-hover__text'>
-                    <i className='ph ph-magnifying-glass' />
-                  </span>
-                </button>
-
-
-
-                {/* button found */}
+              <div className='flex-align flex-wrap gap-12'>
                 <div className='d-flex align-items-center gap-8'>
+                  {/* Cart Button */}
                   <div ref={cartMenuRef} className='position-relative me-8'>
                     <button
                       type='button'
                       onClick={toggleCartMenu}
-                      // className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
-                      className='bg-white border border-gray-100 text-gray-800 py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4 shadow-sm'
+                      className='bg-white border border-gray-100 text-gray-800 py-8 px-16 rounded-pill d-inline-flex align-items-center gap-8 shadow-sm'
                     >
-                      <span
-                        // className='text-md fw-medium'
-                        className='text-md fw-medium d-none d-sm-inline'
-                      >Cart</span>
-                      <span className='text-md fw-medium d-sm-none'>
-                        <i className='ph ph-shopping-cart' />  {/* ADD: Icon for mobile */}
-                      </span>
+                      <span className='text-md fw-medium'>Cart</span>
                       <span className='badge rounded-pill bg-main-600 text-white px-8 py-4'>
                         {cartLoading ? '…' : cartCount}
                       </span>
                       <i className={`ph ${cartMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
                     </button>
+                    {/* Cart dropdown - keep as is */}
                     {cartMenuOpen && (
-                      <div
-                        className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
-                        style={{ minWidth: 260, zIndex: 2100 }}
-                      >
+                      <div className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden' style={{ minWidth: 260, zIndex: 2100 }}>
                         <div className='px-16 py-12 border-bottom border-gray-100 d-flex justify-content-between align-items-center'>
                           <span className='fw-semibold text-gray-800'>Cart</span>
                           <span className='text-sm text-gray-500'>{cartLoading ? 'Loading…' : `${cartCount} item${cartCount === 1 ? '' : 's'}`}</span>
                         </div>
                         <div className='max-h-260 overflow-auto'>
-                          {cartLoading && (
-                            <div className='px-16 py-12 text-sm text-gray-500'>Loading cart...</div>
-                          )}
-                          {!cartLoading && cartItems.length === 0 && (
-                            <div className='px-16 py-12 text-sm text-gray-500'>Your cart is empty</div>
-                          )}
+                          {cartLoading && (<div className='px-16 py-12 text-sm text-gray-500'>Loading cart...</div>)}
+                          {!cartLoading && cartItems.length === 0 && (<div className='px-16 py-12 text-sm text-gray-500'>Your cart is empty</div>)}
                           {!cartLoading && cartItems.slice(0, 5).map((item) => (
                             <div key={item.id} className='px-16 py-10 d-flex align-items-center gap-10 border-bottom border-gray-100'>
                               <img src={item.image || '/images/no-image.svg'} alt={item.name} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8 }} onError={(e) => { e.target.src = '/images/no-image.svg'; }} />
@@ -1100,113 +1056,303 @@ const HeaderOne = () => {
                           ))}
                         </div>
                         <div className='px-16 py-12'>
-                          <Link to='/cart' onClick={() => setCartMenuOpen(false)} className='btn w-100 bg-main-600 text-white py-10 rounded-pill'>
-                            Go to Cart
-                          </Link>
+                          <Link to='/cart' onClick={() => setCartMenuOpen(false)} className='btn w-100 bg-main-600 text-white py-10 rounded-pill'>Go to Cart</Link>
                         </div>
                       </div>
                     )}
                   </div>
 
+                  {/* Account Button */}
                   <div ref={accountMenuRef} className='position-relative me-8'>
-
-                    <button
-                      type='button'
-                      onClick={toggleAccountMenu}
-                      // className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
-                      className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'
-                    >
-
-                      {/* <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span> */}
-                      <span className='text-md fw-medium d-none d-sm-inline'>{isLoggedIn ? 'Account' : 'Login'}</span>
-
-                      <span className='d-sm-none'>
-                        <i className='ph ph-user' />  {/* ADD: Icon for mobile */}
-                      </span>
-
+                    <button type='button' onClick={toggleAccountMenu} className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'>
+                      <span className='text-md fw-medium'>{isLoggedIn ? 'Account' : 'Login'}</span>
                       <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} />
-
                     </button>
-
+                    {/* Account dropdown - keep as is */}
                     {accountMenuOpen && (
-
-                      <div
-                        className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden'
-                        style={{ minWidth: 200, zIndex: 2100 }}
-                      >
-
-                        <Link
-                          to='/account'
-                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
-                          onClick={() => setAccountMenuOpen(false)}
-                        >
-                          My Profile
-                        </Link>
-
-                        <Link
-                          to='/purchased-products'
-                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
-                          onClick={() => setAccountMenuOpen(false)}
-                        >
-                          Orders
-                        </Link>
-
-                        <Link
-                          to='/wishlist'
-                          className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none'
-                          onClick={() => setAccountMenuOpen(false)}
-                        >
-                          Wishlist
-                        </Link>
-
-                        {isLoggedIn && (
-                          <button
-                            type='button'
-                            className='w-100 text-start px-16 py-10 text-gray-800 hover-bg-neutral-100 bg-transparent border-0'
-                            onClick={handleLogout}
-                          >
-                            Logout
-                          </button>
-                        )}
-
+                      <div className='common-dropdown position-absolute end-0 mt-8 bg-white border border-gray-100 rounded-12 shadow-sm overflow-hidden' style={{ minWidth: 200, zIndex: 2100 }}>
+                        <Link to='/account' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>My Profile</Link>
+                        <Link to='/purchased-products' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>Orders</Link>
+                        <Link to='/wishlist' className='d-block px-16 py-10 text-gray-800 hover-bg-neutral-100 text-decoration-none' onClick={() => setAccountMenuOpen(false)}>Wishlist</Link>
+                        {isLoggedIn && (<button type='button' className='w-100 text-start px-16 py-10 text-gray-800 hover-bg-neutral-100 bg-transparent border-0' onClick={handleLogout}>Logout</button>)}
                       </div>
-
                     )}
                   </div>
 
-                  <button
-                    onClick={handleConnectWallet}
-                    type='button'
-                    // className='ms-8 bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center'
-                    className='bg-main-600 text-white py-8 px-8 rounded-pill d-inline-flex align-items-center text-sm'
-                  >
-                    {/* {walletAddress 
-                    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-                     : 'Connect Wallet'} */}
-
-                    {walletAddress
-                      ? `${walletAddress.slice(0, 2)}...${walletAddress.slice(-3)}`
-                      : <><i className='ph ph-wallet me-1' /><span className='d-none d-sm-inline'>Connect</span></>
-                    }
-
+                  {/* Wallet Button */}
+                  <button onClick={handleConnectWallet} type='button' className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'>
+                    {address ? (<span className='text-md fw-medium'>{`${address.slice(0, 6)}...${address.slice(-4)}`}</span>) : (<span className='text-md fw-medium'>Connect Wallet</span>)}
                   </button>
                 </div>
-
               </div>
             </div>
-
           </nav>
+
+
+          {/* ===== MOBILE LAYOUT (Amazon Style) - Two Rows ===== */}
+          {/* ===== MOBILE LAYOUT - Two Rows ===== */}
+          <div className='d-lg-none'>
+            {/* Row 1: Logo + Cart + Account + Wallet Buttons */}
+            <div className='d-flex align-items-center justify-content-between py-2' style={{ gap: '8px' }}>
+              {/* Logo - Left Side */}
+              <Link to='/' className='d-flex' style={{ flexShrink: 0 }}>
+                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '32px', width: 'auto', maxWidth: '100px', objectFit: 'contain' }} />
+              </Link>
+
+              {/* Hamburger Menu - Commented Out */}
+              {/* <button onClick={handleMenuToggle} type='button' className='text-gray-800 text-3xl d-flex p-2' style={{flexShrink: 0}}>
+      <i className='ph ph-list' />
+    </button> */}
+
+              {/* Right Side Buttons */}
+
+              {/* Right Side Buttons */}
+              <div className='d-flex align-items-center' style={{ gap: '8px', flexShrink: 0 }}>  {/* CHANGE: gap from 6px to 8px */}
+                {/* Cart Button */}
+                <div ref={cartMenuRef} className='position-relative'>
+                  <button
+                    type='button'
+                    onClick={toggleCartMenu}
+                    className='bg-white border border-gray-100 text-gray-800 py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm'
+                    style={{ fontSize: '14px', minHeight: '40px' }}  
+                  >
+                    <i className='ph ph-shopping-cart' style={{ fontSize: '18px' }} />  {/* ADD: fontSize for icon */}
+                    <span className='badge rounded-pill bg-main-600 text-white' style={{ fontSize: '11px', padding: '3px 7px' }}>  {/* CHANGE: increased padding */}
+                      {cartLoading ? '…' : cartCount}
+                    </span>
+                  </button>
+
+                  {/* Cart Dropdown - keep as is */}
+                  {cartMenuOpen && (
+                    <div
+                      className='common-dropdown position-absolute bg-white border border-gray-100 rounded-3 shadow-sm overflow-hidden'
+                      style={{
+                        minWidth: '280px',
+                        maxWidth: '90vw',
+                        right: 0,
+                        top: '100%',
+                        marginTop: '8px',
+                        zIndex: 2100
+                      }}
+                    >
+                      <div className='px-3 py-2 border-bottom border-gray-100 d-flex justify-content-between align-items-center'>
+                        <span className='fw-semibold text-gray-800' style={{ fontSize: '14px' }}>Cart</span>
+                        <span className='text-gray-500' style={{ fontSize: '12px' }}>
+                          {cartLoading ? 'Loading…' : `${cartCount} item${cartCount === 1 ? '' : 's'}`}
+                        </span>
+                      </div>
+                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        {cartLoading && (
+                          <div className='px-3 py-2 text-gray-500' style={{ fontSize: '13px' }}>Loading cart...</div>
+                        )}
+                        {!cartLoading && cartItems.length === 0 && (
+                          <div className='px-3 py-2 text-gray-500' style={{ fontSize: '13px' }}>Your cart is empty</div>
+                        )}
+                        {!cartLoading && cartItems.slice(0, 5).map((item) => (
+                          <div key={item.id} className='px-3 py-2 d-flex align-items-center gap-2 border-bottom border-gray-100'>
+                            <img
+                              src={item.image || '/images/no-image.svg'}
+                              alt={item.name}
+                              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }}
+                              onError={(e) => { e.target.src = '/images/no-image.svg'; }}
+                            />
+                            <div className='flex-grow-1' style={{ minWidth: 0 }}>
+                              <div className='fw-semibold text-gray-800 text-truncate' style={{ fontSize: '13px' }}>{item.name}</div>
+                              <div className='text-gray-500' style={{ fontSize: '11px' }}>Qty: {item.quantity} · ${Number(item.price || 0).toFixed(2)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className='px-3 py-2'>
+                        <Link
+                          to='/cart'
+                          onClick={() => setCartMenuOpen(false)}
+                          className='btn w-100 bg-main-600 text-white rounded-pill'
+                          style={{ padding: '8px', fontSize: '13px' }}
+                        >
+                          Go to Cart
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Account Button */}
+                <div ref={accountMenuRef} className='position-relative'>
+                  <button
+                    type='button'
+                    onClick={toggleAccountMenu}
+                    className='bg-main-600 text-white py-2 px-3 rounded-pill d-inline-flex align-items-center gap-2'  
+                    style={{ fontSize: '14px', minHeight: '40px' }}  
+                  >
+                    <i className='ph ph-user' style={{ fontSize: '18px' }} />  {/* ADD: fontSize for icon */}
+                    <i className={`ph ${accountMenuOpen ? 'ph-caret-up' : 'ph-caret-down'}`} style={{ fontSize: '14px' }} />  {/* CHANGE: increased from 12px */}
+                  </button>
+
+                  {/* Account Dropdown - keep as is */}
+                  {accountMenuOpen && (
+                    <div
+                      className='common-dropdown position-absolute bg-white border border-gray-100 rounded-3 shadow-sm overflow-hidden'
+                      style={{
+                        minWidth: '180px',
+                        right: 0,
+                        top: '100%',
+                        marginTop: '8px',
+                        zIndex: 2100
+                      }}
+                    >
+                      <Link
+                        to='/account'
+                        className='d-block px-3 py-2 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                        onClick={() => setAccountMenuOpen(false)}
+                        style={{ fontSize: '13px' }}
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to='/purchased-products'
+                        className='d-block px-3 py-2 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                        onClick={() => setAccountMenuOpen(false)}
+                        style={{ fontSize: '13px' }}
+                      >
+                        Orders
+                      </Link>
+                      <Link
+                        to='/wishlist'
+                        className='d-block px-3 py-2 text-gray-800 hover-bg-neutral-100 text-decoration-none'
+                        onClick={() => setAccountMenuOpen(false)}
+                        style={{ fontSize: '13px' }}
+                      >
+                        Wishlist
+                      </Link>
+                      {isLoggedIn && (
+                        <button
+                          type='button'
+                          className='w-100 text-start px-3 py-2 text-gray-800 hover-bg-neutral-100 bg-transparent border-0'
+                          onClick={handleLogout}
+                          style={{ fontSize: '13px' }}
+                        >
+                          Logout
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Wallet Button */}
+                <button
+                  onClick={handleConnectWallet}
+                  type='button'
+                  className='bg-main-600 text-white py-2 px-3 rounded-pill d-inline-flex align-items-center gap-1'
+                  style={{ fontSize: '12px', whiteSpace: 'nowrap', minHeight: '40px' }}  
+                >
+                  {address ? (
+                    `${address.slice(0, 4)}...${address.slice(-3)}`
+                  ) : (
+                    <>
+                      <i className='ph ph-wallet' style={{ fontSize: '16px' }} />  {/* ADD: fontSize for icon */}
+                      <span>Connect</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
+
+            {/* Row 2: Full Width Search Bar */}
+            <div className='py-2'>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+                  setShowSearchDropdown(false);
+                }}
+                className='w-100'
+              >
+                <div className='position-relative'>
+                  <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => { if (searchResults.length) setShowSearchDropdown(true); }}
+                    onBlur={() => { setTimeout(() => setShowSearchDropdown(false), 200); }}
+                    type='text'
+                    className='form-control py-2 ps-3 pe-5 rounded-pill'
+                    placeholder='Search products...'
+                    aria-label='Search products'
+                    style={{ fontSize: '14px', height: '44px' }}
+                  />
+                  <button
+                    type='submit'
+                    className='position-absolute top-50 translate-middle-y end-0 me-2 bg-main-600 text-white rounded-circle d-flex align-items-center justify-content-center border-0'
+                    style={{ width: '36px', height: '36px' }}
+                  >
+                    <i className='ph ph-magnifying-glass text-lg' />
+                  </button>
+
+                  {/* Search Dropdown for Mobile */}
+                  {showSearchDropdown && (
+                    <div
+                      className='position-absolute bg-white shadow-sm border border-gray-100 rounded-3 mt-1 w-100'
+                      style={{ zIndex: 2000, maxHeight: '400px', overflowY: 'auto' }}
+                    >
+                      <div className='p-2'>
+                        {searchLoading && <div className='text-gray-500 p-2' style={{ fontSize: '13px' }}>Searching...</div>}
+                        {searchError && <div className='text-danger p-2' style={{ fontSize: '13px' }}>{searchError}</div>}
+                        {!searchLoading && searchResults.length === 0 && <div className='text-gray-500 p-2' style={{ fontSize: '13px' }}>No results</div>}
+                        <ul className='list-unstyled mb-0'>
+                          {searchResults.slice(0, 6).map((p) => (
+                            <li key={p._id} className='border-bottom'>
+                              <Link
+                                to={`/product-details/${p._id}`}
+                                onClick={() => setShowSearchDropdown(false)}
+                                className='d-flex gap-2 align-items-center text-inherit text-decoration-none p-2'
+                              >
+                                <img
+                                  src={p.images?.[0] || '/images/no-image.svg'}
+                                  alt={p.name}
+                                  style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }}
+                                  onError={(e) => e.target.src = '/images/no-image.svg'}
+                                />
+                                <div className='flex-grow-1'>
+                                  <div className='fw-medium text-truncate' style={{ fontSize: '13px' }}>{p.name}</div>
+                                  <div className='text-gray-500' style={{ fontSize: '11px' }}>${Number(p.price).toFixed(2)}</div>
+                                </div>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className='text-center mt-2'>
+                          <Link
+                            to={`/shop?search=${encodeURIComponent(searchQuery)}`}
+                            onClick={() => setShowSearchDropdown(false)}
+                            className='text-main-600'
+                            style={{ fontSize: '12px' }}
+                          >
+                            See all results →
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </form>
+            </div>
+          </div>
+
+
         </div>
       </header>
       {/* ======================= Middle Header End ========================= */}
+      {/* ======================= Middle Header End ========================= */}
+
       {/* ======================= Categories Bar (secondary nav) ========================= */}
       <div className='categories-bar bg-white border-bottom'>
         <div className='container container-lg'>
           {/* <nav className='categories-inner d-flex flex-wrap align-items-center gap-12' style={{ padding: '8px 0' }}> */}
           <nav className='categories-inner d-flex align-items-center gap-12 overflow-auto' style={{ padding: '8px 0', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>  {/* ADD: overflow-auto and scrollbar styles */}
 
-          <style>{`.categories-inner::-webkit-scrollbar { display: none; }`}</style>  
-          {/* ADD: Hide scrollbar */}
+            <style>{`.categories-inner::-webkit-scrollbar { display: none; }`}</style>
+            {/* ADD: Hide scrollbar */}
 
             {categoriesLoading ? (
               <div className='text-sm text-gray-500'>Loading categories...</div>
