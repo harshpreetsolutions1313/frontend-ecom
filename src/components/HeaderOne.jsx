@@ -962,12 +962,19 @@ const HeaderOne = () => {
       {/* ======================= Middle Header Start ========================= */}
       <header className='header-middle bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
-          <nav className='header-inner flex-between'>
+          {/* <nav className='header-inner flex-between'> */}
+          <nav className='header-inner d-flex align-items-center' style={{gap: '8px'}}>  {/* CHANGE: from flex-between to d-flex align-items-center with gap */}
 
             {/* ADD LOGO HERE - Before the search form */}
-            <div className='logo d-lg-none d-block me-3'>
+
+            <div 
+            // className='logo d-lg-none d-block me-3'
+            className='d-lg-none d-block' style={{flexShrink: 0}}
+            >
+
+            {/* <div className='d-lg-none d-block' style={{flexShrink: 0}}></div> */}
               <Link to='/'>
-                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '40px' }} />
+                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '32px' }} />
               </Link>
             </div>
 
