@@ -286,7 +286,7 @@ const HeaderTwo = ({ category }) => {
                 <Link to='#' className='nav-menu__link'>
                   Vendors
                 </Link>
-                <ul
+                {/* <ul
                   className={`on-hover-dropdown common-dropdown nav-submenu scroll-sm ${
                     activeIndex === 3 ? "open" : ""
                   }`}
@@ -327,7 +327,7 @@ const HeaderTwo = ({ category }) => {
                       Vendors Two Details
                     </Link>
                   </li>
-                </ul>
+                </ul> */}
               </li>
               <li
                 onClick={() => handleMenuClick(4)}

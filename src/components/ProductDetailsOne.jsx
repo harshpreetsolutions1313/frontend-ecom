@@ -122,7 +122,7 @@ const ProductDetailsOne = () => {
 
     try {
       const response = await axios.post(
-        `https://backend-ecom-liart.vercel.app/api/products/wishlist/add/${product.id}`,
+        `http://localhost:5000/api/products/wishlist/add/${product.id}`,
         {}, // Empty body if backend expects product ID only from URL
         {
           headers: {
@@ -348,9 +348,9 @@ const ProductDetailsOne = () => {
                         <i className={`ph text-xl ${isWishlisted ? 'ph-fill ph-heart' : 'ph-heart'}`} />
                       </button>
 
-                      <Link to="#" className="w-52 h-52 bg-main-50 text-main-600 text-xl hover-bg-main-600 hover-text-white flex-center rounded-circle">
+                      {/* <Link to="#" className="w-52 h-52 bg-main-50 text-main-600 text-xl hover-bg-main-600 hover-text-white flex-center rounded-circle">
                         <i className="ph ph-shuffle" />
-                      </Link>
+                      </Link> */}
                       <Link to="#" className="w-52 h-52 bg-main-50 text-main-600 text-xl hover-bg-main-600 hover-text-white flex-center rounded-circle">
                         <i className="ph ph-share-network" />
                       </Link>
@@ -372,11 +372,11 @@ const ProductDetailsOne = () => {
                         Description
                       </button>
                     </li>
-                    <li className="nav-item" role="presentation">
+                    {/* <li className="nav-item" role="presentation">
                       <button className="nav-link" id="pills-reviews-tab" data-bs-toggle="pill" data-bs-target="#pills-reviews" type="button" role="tab" aria-controls="pills-reviews" aria-selected="false">
                         Reviews
                       </button>
-                    </li>
+                    </li> */}
                   </ul>
                   <Link to="#" className="btn bg-color-one rounded-16 flex-align gap-8 text-main-600 hover-bg-main-600 hover-text-white">
                     <img src="assets/images/icon/satisfaction-icon.png" alt="" /> 100% Satisfaction Guaranteed
@@ -391,8 +391,9 @@ const ProductDetailsOne = () => {
                       {/* ... (your original description content) ... */}
                       <div className="mb-40">
                         <h6 className="mb-24">Product Description</h6>
-                        <p> Wherever celebrations and good times happen, the LAY'S brand will be there just as it has been for more than 75 years. With flavors almost as rich as our history, we have a chip or crisp flavor guaranteed to bring a smile on your face. </p>
-                        <p> Morbi ut sapien vitae odio accumsan gravida. Morbi vitae erat auctor, eleifend nunc a, lobortis neque. Praesent aliquam dignissim viverra. Maecenas lacus odio, feugiat eu nunc sit amet, maximus sagittis dolor. Vivamus nisi sapien, elementum sit amet eros sit amet, ultricies cursus ipsum. Sed consequat luctus ligula. Curabitur laoreet rhoncus blandit. Aenean vel diam ut arcu pharetra dignissim ut sed leo. Vivamus faucibus, ipsum in vestibulum vulputate, lorem orci convallis quam, sit amet consequat nulla felis pharetra lacus. Duis semper erat mauris, sed egestas purus commodo vel. </p>
+                        <p>{product?.description || "Product"}</p>
+                        {/* <p> Wherever celebrations and good times happen, the LAY'S brand will be there just as it has been for more than 75 years. With flavors almost as rich as our history, we have a chip or crisp flavor guaranteed to bring a smile on your face. </p>
+                        <p> Morbi ut sapien vitae odio accumsan gravida. Morbi vitae erat auctor, eleifend nunc a, lobortis neque. Praesent aliquam dignissim viverra. Maecenas lacus odio, feugiat eu nunc sit amet, maximus sagittis dolor. Vivamus nisi sapien, elementum sit amet eros sit amet, ultricies cursus ipsum. Sed consequat luctus ligula. Curabitur laoreet rhoncus blandit. Aenean vel diam ut arcu pharetra dignissim ut sed leo. Vivamus faucibus, ipsum in vestibulum vulputate, lorem orci convallis quam, sit amet consequat nulla felis pharetra lacus. Duis semper erat mauris, sed egestas purus commodo vel. </p> */}
                         {/* Lists and other content unchanged */}
                       </div>
                       {/* Other sections (Specifications, Nutrition, More Details) unchanged */}

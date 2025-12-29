@@ -6296,7 +6296,7 @@ input:focus-visible {
 }
 
 .bg-main-two-600 {
-    background-color: var(--main-two-600) !important;
+    background-color: var(--main-600) !important;
 }
 
 .bg-main-two-700 {
