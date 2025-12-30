@@ -5,7 +5,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 import { ethers } from 'ethers';
-import ecommercePaymentAbi from '../abi/ecommercePaymentAbi';
+import ecommercePaymentAbi from '../abi/ecommercePaymentAbi.json';
 import { useWallet } from '../context/WalletContext';
 
 const { REACT_APP_CONTRACT_ADDRESS, REACT_APP_USDT_ADDRESS, REACT_APP_USDC_ADDRESS } = process.env;
