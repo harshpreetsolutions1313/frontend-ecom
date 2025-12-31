@@ -80,9 +80,9 @@ const BannerOne = () => {
                                             </span>
                                         </Link>
                                     </div>
-                                    {/* <div className="banner-item__thumb">
+                                    <div className="banner-item__thumb">
                                         <img src="assets/images/thumbs/banner-img1.png" alt="" />
-                                    </div> */}
+                                    </div>
                                 </div>
                             </div>
                             <div className="banner-slider__item">
@@ -101,9 +101,9 @@ const BannerOne = () => {
                                             </span>
                                         </Link>
                                     </div>
-                                    {/* <div className="banner-item__thumb">
+                                    <div className="banner-item__thumb">
                                         <img src="assets/images/thumbs/banner-img3.png" alt="" />
-                                    </div> */}
+                                    </div>
                                 </div>
                             </div>
                         </Slider>

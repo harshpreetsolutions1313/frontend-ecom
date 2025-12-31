@@ -265,33 +265,33 @@ const HeaderOne = () => {
   // }, [showWalletModal]);
 
   // Wallet modal click outside handler
- useEffect(() => {
-  if (!showWalletModal) return;
+  useEffect(() => {
+    if (!showWalletModal) return;
 
-  const handleClickOutside = (event) => {
-    // 1. Click inside modal → keep open
-    if (walletModalRef.current?.contains(event.target)) {
-      return;
-    }
+    const handleClickOutside = (event) => {
+      // 1. Click inside modal → keep open
+      if (walletModalRef.current?.contains(event.target)) {
+        return;
+      }
 
-    // 2. Click on the "Connect Wallet" trigger button → keep open (or let toggle handle it)
-    if (walletButtonRef.current?.contains(event.target)) {
-      return;
-    }
+      // 2. Click on the "Connect Wallet" trigger button → keep open (or let toggle handle it)
+      if (walletButtonRef.current?.contains(event.target)) {
+        return;
+      }
 
-    // 3. Everything else → close
-    setShowWalletModal(false);
-  };
+      // 3. Everything else → close
+      setShowWalletModal(false);
+    };
 
-  // Use mousedown + touchstart to cover both desktop & mobile
-  document.addEventListener('mousedown', handleClickOutside);
-  document.addEventListener('touchstart', handleClickOutside);
+    // Use mousedown + touchstart to cover both desktop & mobile
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
 
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-    document.removeEventListener('touchstart', handleClickOutside);
-  };
-}, [showWalletModal]);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showWalletModal]);
 
   useEffect(() => {
     const syncLoginState = () => {
@@ -701,6 +701,11 @@ const HeaderOne = () => {
         <div className='container container-lg'>
           {/* Desktop & Tablet Layout */}
           <nav className='header-inner d-none d-lg-flex align-items-center' style={{ gap: '16px', position: 'relative', zIndex: 10 }}>
+
+            <Link to='/' className='link' style={{ flexShrink: 0, marginRight: '16px' }}>
+              <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '40px' }} />
+            </Link>
+
             <form
               onSubmit={(e) => { e.preventDefault(); navigate(`/shop?search=${encodeURIComponent(searchQuery)}`); setShowSearchDropdown(false); }}
               style={{ flex: 1, minWidth: 0, position: 'relative' }}
@@ -929,7 +934,7 @@ const HeaderOne = () => {
                               style={{ cursor: 'pointer' }}
                             >
                               <img
-                                src='https://altcoinsbox.com/wp-content/uploads/2023/03/walletconnect-logo.png'
+                                src='https://image.pngaaa.com/296/6917296-middle.png'
                                 alt='WalletConnect'
                                 style={{ width: 32, height: 32 }}
                               />
@@ -976,10 +981,21 @@ const HeaderOne = () => {
                   {cartMenuOpen && (
                     <div
                       className='common-dropdown position-absolute bg-white border border-gray-100 rounded-3 shadow-sm overflow-hidden'
+                      // style={{
+                      //   minWidth: '280px',
+                      //   maxWidth: 'calc(100vw - 40px)',
+                      //   right: '-8px',
+                      //   top: '100%',
+                      //   marginTop: '8px',
+                      //   zIndex: 9999,
+                      //   boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
+                      // }}
                       style={{
                         minWidth: '280px',
                         maxWidth: 'calc(100vw - 40px)',
-                        right: '-8px',
+                        right: 'auto', // Remove right alignment
+                        left: '50%',   // Center horizontally under the button
+                        transform: 'translateX(-50%)', // Adjust for centering
                         top: '100%',
                         marginTop: '8px',
                         zIndex: 9999,
@@ -1129,14 +1145,26 @@ const HeaderOne = () => {
                         <div
                           ref={walletModalRef}
                           className='common-dropdown position-absolute bg-white border border-gray-100 rounded-3 shadow-sm overflow-hidden'
+                          // style={{
+                          //   minWidth: '200px',
+                          //   maxWidth: 'calc(100vw - 40px)',
+                          //   right: 0,
+                          //   top: '100%',
+                          //   marginTop: '8px',
+                          //   zIndex: 9999,
+                          //   boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
+                          // }}
                           style={{
-                            minWidth: '200px',
-                            maxWidth: 'calc(100vw - 40px)',
-                            right: 0,
-                            top: '100%',
+                            minWidth: '220px',                    // or 240px if you want it a bit wider
+                            maxWidth: 'calc(100vw - 32px)',       // safety against ultra-narrow windows
+                            top: 'calc(100% + 8px)',
                             marginTop: '8px',
                             zIndex: 9999,
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+                            // ──────── the important centering part ────────
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            right: 'auto',                        // ← remove right:0 influence
                           }}
                           onClick={(e) => e.stopPropagation()}
                           onMouseDown={(e) => e.stopPropagation()}
@@ -1174,9 +1202,9 @@ const HeaderOne = () => {
                             style={{ cursor: 'pointer' }}
                           >
                             <img
-                              src='https://altcoinsbox.com/wp-content/uploads/2023/03/walletconnect-logo.png'
+                              src='https://image.pngaaa.com/296/6917296-middle.png'
                               alt='WalletConnect'
-                              style={{ width: 28, height: 28 }}
+                              style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }}
                             />
                             <div>
                               <div className='fw-medium text-gray-800' style={{ fontSize: '13px' }}>WalletConnect</div>
@@ -1275,7 +1303,7 @@ const HeaderOne = () => {
       {/* ======================= Middle Header End ========================= */}
 
       {/* ======================= Categories Bar (secondary nav) ========================= */}
-      <div className='categories-bar bg-white border-bottom'>
+      {/* <div className='categories-bar bg-white border-bottom'>
         <div className='container container-lg'>
           <nav className='categories-inner d-flex align-items-center gap-12 overflow-auto' style={{ padding: '8px 0', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <style>{`.categories-inner::-webkit-scrollbar { display: none; }`}</style>
@@ -1297,14 +1325,14 @@ const HeaderOne = () => {
             )}
           </nav>
         </div>
-      </div>
+      </div> */}
 
       {/* ==================== Header Start Here ==================== */}
       <header
         className={`header bg-white border-bottom border-gray-100 ${scroll && "fixed-header"
           }`}
       >
-        <div className='container container-lg'>
+        {/* <div className='container container-lg'>
           <nav className='header-inner d-flex justify-content-between gap-8'>
             <div className='flex-align menu-category-wrapper'>
               <div className='category on-hover-item'>
@@ -1438,7 +1466,7 @@ const HeaderOne = () => {
               </button>
             </div>
           </nav>
-        </div>
+        </div> */}
       </header>
     </>
   );

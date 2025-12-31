@@ -48,18 +48,18 @@ const FeatureOne = () => {
         const { className, onClick } = props;
         return (
             <button
-                type="button" onClick={onClick}
-                className={` ${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+                type="button" 
+                onClick={onClick}
+                className={`${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
             >
                 <i className="ph ph-caret-right" />
             </button>
         );
     }
+
     function SamplePrevArrow(props) {
         const { className, onClick } = props;
-
         return (
-
             <button
                 type="button"
                 onClick={onClick}
@@ -69,6 +69,7 @@ const FeatureOne = () => {
             </button>
         );
     }
+
     const settings = {
         dots: false,
         arrows: true,
@@ -128,35 +129,27 @@ const FeatureOne = () => {
                     slidesToShow: 1,
                 },
             },
-
         ],
     };
 
-    const circleStyle = {
-        width: 120,
-        height: 120,
-        borderRadius: '50%',
-        background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        boxShadow: '0 6px 18px rgba(16,24,40,0.06)',
-        border: '1px solid rgba(15,23,42,0.04)'
-    };
-
-    const smallCircleStyle = {
-        width: 88,
-        height: 88,
-        borderRadius: '50%',
-        background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        boxShadow: '0 6px 18px rgba(16,24,40,0.04)',
-        border: '1px solid rgba(15,23,42,0.04)'
-    };
+    // Loading placeholder using template structure
+    const renderLoadingSlide = () => (
+        <div className="feature-item text-center">
+            <div className="feature-item__thumb rounded-circle">
+                <Link to="/shop" className="w-100 h-100 flex-center">
+                    <div className="spinner-border text-main-600" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </Link>
+            </div>
+            <div className="feature-item__content mt-16">
+                <h6 className="text-lg mb-8">
+                    <Link to="/shop" className="text-inherit">Loading...</Link>
+                </h6>
+                <span className="text-sm text-gray-400">Please wait</span>
+            </div>
+        </div>
+    );
 
     return (
         <div className="feature" id="featureSection">
@@ -170,7 +163,6 @@ const FeatureOne = () => {
                         >
                             <i className="ph ph-caret-left" />
                         </button>
-
                         <button
                             type="button"
                             id="feature-item-wrapper-next"
@@ -179,44 +171,62 @@ const FeatureOne = () => {
                             <i className="ph ph-caret-right" />
                         </button>
                     </div>
-
                     <div className="feature-item-wrapper">
                         <Slider {...settings}>
                             {loading ? (
+                                // Show multiple loading slides for better UX
+                                <>
+                                    {renderLoadingSlide()}
+                                    {renderLoadingSlide()}
+                                    {renderLoadingSlide()}
+                                </>
+                            ) : categories.length === 0 ? (
+                                // Show fallback when no categories
                                 <div className="feature-item text-center">
-                                    <div className="feature-item__thumb">
+                                    <div className="feature-item__thumb rounded-circle">
                                         <Link to="/shop" className="w-100 h-100 flex-center">
-                                            <div style={smallCircleStyle}>
-                                                <img src="assets/images/thumbs/feature-img1.png" alt="loading" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            </div>
+                                            <img src="assets/images/thumbs/feature-img1.png" alt="No categories" />
                                         </Link>
                                     </div>
                                     <div className="feature-item__content mt-16">
                                         <h6 className="text-lg mb-8">
-                                            <Link to="/shop" className="text-inherit">Loading</Link>
+                                            <Link to="/shop" className="text-inherit">
+                                                No Categories
+                                            </Link>
                                         </h6>
-                                        <span className="text-sm text-gray-400">Please wait</span>
+                                        <span className="text-sm text-gray-400">Check back later</span>
                                     </div>
                                 </div>
                             ) : (
+                                // Render actual categories with template structure
                                 categories.map((cat, idx) => (
                                     <div className="feature-item text-center" key={cat.category + idx}>
-                                        <div className="feature-item__thumb">
-                                            <Link to={`/shop?category=${encodeURIComponent(cat.category)}`} className="w-100 h-100 flex-center">
-                                                <div 
-                                                style={circleStyle}
-                                                >
-                                                    <img src={cat.imageUrl || '/images/no-image.svg'} alt={cat.category} onError={(e) => e.target.src = '/images/no-image.svg'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                </div>
+                                        <div className="feature-item__thumb rounded-circle">
+                                            <Link 
+                                                to={`/shop?category=${encodeURIComponent(cat.category)}`} 
+                                                className="w-100 h-100 flex-center"
+                                            >
+                                                <img 
+                                                    src={cat.imageUrl || "assets/images/thumbs/feature-img1.png"} 
+                                                    alt={cat.category}
+                                                    onError={(e) => {
+                                                        e.target.src = "assets/images/thumbs/feature-img1.png";
+                                                    }}
+                                                />
                                             </Link>
                                         </div>
                                         <div className="feature-item__content mt-16">
                                             <h6 className="text-lg mb-8">
-                                                <Link to={`/shop?category=${encodeURIComponent(cat.category)}`} className="text-inherit">
+                                                <Link 
+                                                    to={`/shop?category=${encodeURIComponent(cat.category)}`} 
+                                                    className="text-inherit"
+                                                >
                                                     {cat.category}
                                                 </Link>
                                             </h6>
-                                            <span className="text-sm text-gray-400">{(cat.count || 0)} Products</span>
+                                            <span className="text-sm text-gray-400">
+                                                {cat.count || 0}+ Product{cat.count !== 1 ? 's' : ''}
+                                            </span>
                                         </div>
                                     </div>
                                 ))
