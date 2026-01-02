@@ -24,14 +24,44 @@ import { Toaster } from 'react-hot-toast';
 import PurchasedProductsPage from "./pages/PurchasedProductsPage";
 import { WalletProvider } from './context/WalletContext';
 
+import { createAppKit } from '@reown/appkit/react'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { projectId, metadata, networks, wagmiAdapter } from './config/appkit-config'
+
+const queryClient = new QueryClient()
+const generalConfig = {
+  projectId,
+  networks,
+  metadata,
+  themeMode: 'light',
+  themeVariables: {
+    '--w3m-accent': '#000000',
+  }
+}
+
+// Create modal
+createAppKit({
+  adapters: [wagmiAdapter],
+  ...generalConfig,
+  features: {
+    analytics: true // Optional - defaults to your Cloud configuration
+  }
+})
+
+
+
 function App() {
   return (
 
-    <WalletProvider>
+    // <WalletProvider>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+    <QueryClientProvider client={queryClient}>
 
     <BrowserRouter>
       <RouteScrollToTop />
       <PhosphorIconInit />
+      {/* <appkit-button /> */}
       <Toaster position="top-right" />
       <Routes>
 
@@ -69,7 +99,10 @@ function App() {
       </Routes>
     </BrowserRouter>
 
-    </WalletProvider>
+    </QueryClientProvider>
+    </WagmiProvider>
+
+    // </WalletProvider>
     
   );
 }

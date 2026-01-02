@@ -6,30 +6,9 @@ import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 import { ethers } from 'ethers';
 import ecommercePaymentAbi from '../abi/ecommercePaymentAbi.json';
-import { usePublicClient } from 'wagmi';
-
-import { useWriteContract, useAccount, useChainId } from 'wagmi';
-
-import { useSwitchChain } from 'wagmi';
-import { bsc } from 'wagmi/chains';
-
-import { parseUnits, decodeEventLog } from 'viem';
+import { useWallet } from '../context/WalletContext';
 
 const { REACT_APP_CONTRACT_ADDRESS, REACT_APP_USDT_ADDRESS, REACT_APP_USDC_ADDRESS } = process.env;
-
-const erc20Abi = [
-  {
-    name: 'approve',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { name: 'spender', type: 'address' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-];
-
 
 const CartSection = () => {
   const navigate = useNavigate();
@@ -40,16 +19,15 @@ const CartSection = () => {
   const [buyingId, setBuyingId] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
 
-
+  // Blockchain state
+  // const [provider, setProvider] = useState(null);
+  // const [signer, setSigner] = useState(null);
+  // const [contract, setContract] = useState(null);
+  const { provider, signer, contract,
+    connectWallet
+  } = useWallet();
 
   const [selectedToken, setSelectedToken] = useState(REACT_APP_USDT_ADDRESS);
-
-  const publicClient = usePublicClient();
-  const { address, isConnected } = useAccount();
-  const chainId = useChainId();
-  const { writeContractAsync } = useWriteContract();
-
-  const { switchChainAsync } = useSwitchChain();
 
 
 
@@ -253,374 +231,153 @@ const CartSection = () => {
     }
   };
 
-  // const handleBuyNow = async () => {
-
-  //   console.log("inside handle buy now", items[0]);
-  //   let item = items[0];
-
-  //   if (!isConnected || !address) {
-  //     toast.error('Please connect your wallet');
-  //     return;
-  //   }
-
-  //   const token = localStorage.getItem('userToken');
-  //   if (!token) {
-  //     navigate('/account');
-  //     return;
-  //   }
-
-  //   setBuyingId(item.id);
-
-  //   try {
-  //     const amount = ethers.parseUnits((item.price * item.quantity).toString(), 18); // 6 decimals for USDT/USDC
-  //     const tokenContract = new ethers.Contract(
-  //       selectedToken,
-  //       ['function approve(address spender, uint256 amount) returns (bool)'],
-  //       signer
-  //     );
-
-  //     const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, amount);
-  //     await approveTx.wait();
-
-  //     const tx = await contract.createAndPayForOrder(item.id, amount, selectedToken);
-  //     const receipt = await tx.wait();
-
-  //     const paymentEvent = receipt.logs
-  //       .map((log) => {
-  //         try {
-  //           return contract.interface.parseLog(log);
-  //         } catch {
-  //           return null;
-  //         }
-  //       })
-  //       .find((e) => e?.name === 'PaymentReceived');
-
-  //     console.log("paymentEvent", paymentEvent);
-
-  //     const onChainOrderId = paymentEvent ? paymentEvent.args.orderId.toString() : null;
-
-  //     console.log("onChainOrderId", onChainOrderId);
-  //     console.log("receipt", receipt);
-  //     console.log("receipt hash", receipt.hash);
-
-  //     await axios.post(
-  //       API_ENDPOINTS.ORDERS_CREATE,
-  //       {
-  //         productId: item.id,
-  //         amount: item.price * item.quantity,
-  //         quantity: item.quantity, // Include quantity
-  //         token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
-  //         onChainOrderId,
-  //         transactionHash: receipt.hash,
-  //         buyer: await signer.getAddress()
-  //       },
-  //       { headers: authHeaders() }
-  //     );
-
-  //     toast.success('Order placed from cart');
-  //     await handleRemove(item.id, false);
-  //   } catch (err) {
-  //     console.error('Buy now failed', err);
-  //     toast.error(err?.response?.data?.message || 'Failed to place order');
-  //   } finally {
-  //     setBuyingId(null);
-  //   }
-  // };
-
-
   const handleBuyNow = async () => {
-    console.log('inside handle buy now', items[0]);
-    const item = items[0];
 
-    if (!isConnected || !address) {
-      toast.error('Please connect your wallet');
-      return;
+    console.log("inside handle buy now", items[0]);
+    let item = items[0];
+
+    if (!contract) {
+      await connectWallet();
+      if (!contract) return;
     }
-
+  
     const token = localStorage.getItem('userToken');
     if (!token) {
       navigate('/account');
       return;
     }
-
-
-
+  
     setBuyingId(item.id);
-
+  
     try {
-
-      if (chainId !== bsc.id) {
-        await switchChainAsync({ chainId: bsc.id });
-      }
-
-
-      // USDT / USDC = 6 decimals
-      const amount = parseUnits(
-        (item.price * item.quantity).toString(),
-        6
+      const amount = ethers.parseUnits((item.price * item.quantity).toString(), 18); // 6 decimals for USDT/USDC
+      const tokenContract = new ethers.Contract(
+        selectedToken,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        signer
       );
 
-      /* ------------------ APPROVE TOKEN ------------------ */
-      const approveHash = await writeContractAsync({
-        address: selectedToken,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args: [REACT_APP_CONTRACT_ADDRESS, amount],
-      });
-
-      await publicClient.waitForTransactionReceipt({
-        hash: approveHash,
-      });
-
-      /* ------------------ PAY ORDER ------------------ */
-      const paymentHash = await writeContractAsync({
-        address: REACT_APP_CONTRACT_ADDRESS,
-        abi: ecommercePaymentAbi,
-        functionName: 'createAndPayForOrder',
-        args: [item.id, amount, selectedToken],
-      });
-
-      const receipt = await publicClient.waitForTransactionReceipt({
-        hash: paymentHash,
-      });
-
-      /* ------------------ PARSE EVENT ------------------ */
+      const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, amount);
+      await approveTx.wait();
+  
+      const tx = await contract.createAndPayForOrder(item.id, amount, selectedToken);
+      const receipt = await tx.wait();
+  
       const paymentEvent = receipt.logs
         .map((log) => {
           try {
-            return decodeEventLog({
-              abi: ecommercePaymentAbi,
-              data: log.data,
-              topics: log.topics,
-            });
+            return contract.interface.parseLog(log);
           } catch {
             return null;
           }
         })
-        .find((e) => e?.eventName === 'PaymentReceived');
+        .find((e) => e?.name === 'PaymentReceived');
+  
+        console.log("paymentEvent", paymentEvent);
 
-      const onChainOrderId = paymentEvent
-        ? paymentEvent.args.orderId.toString()
-        : null;
+      const onChainOrderId = paymentEvent ? paymentEvent.args.orderId.toString() : null;
 
-      console.log('onChainOrderId', onChainOrderId);
-      console.log('tx hash', receipt.transactionHash);
-
-      /* ------------------ BACKEND SAVE ------------------ */
+      console.log("onChainOrderId", onChainOrderId);
+      console.log("receipt", receipt);
+      console.log("receipt hash", receipt.hash);
+  
       await axios.post(
         API_ENDPOINTS.ORDERS_CREATE,
         {
           productId: item.id,
           amount: item.price * item.quantity,
-          quantity: item.quantity,
-          token:
-            selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
+          quantity: item.quantity, // Include quantity
+          token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
           onChainOrderId,
-          transactionHash: receipt.transactionHash,
-          buyer: address,
+          transactionHash: receipt.hash,
+          buyer: await signer.getAddress()
         },
         { headers: authHeaders() }
       );
-
+  
       toast.success('Order placed from cart');
       await handleRemove(item.id, false);
     } catch (err) {
       console.error('Buy now failed', err);
-      toast.error(
-        err?.shortMessage ||
-        err?.response?.data?.message ||
-        'Failed to place order'
-      );
+      toast.error(err?.response?.data?.message || 'Failed to place order');
     } finally {
       setBuyingId(null);
     }
   };
-
-
-  // const handlePlaceOrder = async () => {
-
-
-  //   if (!contract) {
-  //     await connectWallet();
-  //     if (!contract) return;
-  //   }
-
-  //   if (items.length === 0) return;
-
-  //   setPlacingOrder(true);
-
-  //   try {
-  //     const productIds = items.map((item) => item.id);
-  //     const amounts = items.map((item) => ethers.parseUnits((item.price * item.quantity).toString(), 18)); // 6 decimals for USDT/USDC
-  //     const totalAmount = amounts.reduce((a, b) => a + b, 0n);
-
-  //     const tokenContract = new ethers.Contract(
-  //       selectedToken,
-  //       ['function approve(address spender, uint256 amount) returns (bool)'],
-  //       signer
-  //     );
-  //     const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, totalAmount);
-  //     await approveTx.wait();
-
-  //     const tx = await contract.createAndPayForMultipleOrders(productIds, amounts, selectedToken);
-  //     const receipt = await tx.wait();
-
-  //     const paymentEvents = receipt.logs
-  //       .map((log) => {
-  //         try {
-  //           return contract.interface.parseLog(log);
-  //         } catch {
-  //           return null;
-  //         }
-  //       })
-  //       .filter((e) => e?.name === 'PaymentReceived');
-
-  //     const onChainOrderIds = paymentEvents.map((e) => e.args.orderId.toString());
-
-  //     const orderItems = items.map((item, index) => ({
-  //       productId: item.id,
-  //       quantity: item.quantity, // Include quantity
-  //       amount: item.price * item.quantity,
-  //       onChainOrderId: onChainOrderIds[index] || null,
-  //     }));
-
-  //     await axios.post(
-  //       API_ENDPOINTS.ORDERS_CREATE_BATCH,
-  //       {
-  //         items: orderItems,
-  //         token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
-  //         transactionHash: receipt.hash,
-  //         totalAmount: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-  //         buyer: await signer.getAddress()
-  //       },
-  //       { headers: authHeaders() }
-  //     );
-
-  //     toast.success(`Order placed for ${items.length} items & saved!`);
-
-  //     for (const item of items) {
-  //       await handleRemove(item.id, false);
-  //     }
-
-  //     fetchCart();
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error(err?.reason || err?.response?.data?.message || 'Order failed');
-  //   } finally {
-  //     setPlacingOrder(false);
-  //   }
-  // };
-
+  
 
   const handlePlaceOrder = async () => {
-    if (!isConnected || !address) {
-      toast.error('Please connect your wallet');
-      return;
+    if (!contract) {
+      await connectWallet();
+      if (!contract) return;
     }
-
+  
     if (items.length === 0) return;
-
+  
     setPlacingOrder(true);
-
+  
     try {
-      /* ------------------ PREP DATA ------------------ */
       const productIds = items.map((item) => item.id);
-
-      // USDT / USDC = 6 decimals
-      const amounts = items.map((item) =>
-        parseUnits((item.price * item.quantity).toString(), 6)
-      );
-
+      const amounts = items.map((item) => ethers.parseUnits((item.price * item.quantity).toString(), 18)); // 6 decimals for USDT/USDC
       const totalAmount = amounts.reduce((a, b) => a + b, 0n);
-
-      /* ------------------ APPROVE ------------------ */
-      const approveHash = await writeContractAsync({
-        address: selectedToken,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args: [REACT_APP_CONTRACT_ADDRESS, totalAmount],
-      });
-
-      await publicClient.waitForTransactionReceipt({
-        hash: approveHash,
-      });
-
-      /* ------------------ PAY MULTIPLE ORDERS ------------------ */
-      const paymentHash = await writeContractAsync({
-        address: REACT_APP_CONTRACT_ADDRESS,
-        abi: ecommercePaymentAbi,
-        functionName: 'createAndPayForMultipleOrders',
-        args: [productIds, amounts, selectedToken],
-      });
-
-      const receipt = await publicClient.waitForTransactionReceipt({
-        hash: paymentHash,
-      });
-
-      /* ------------------ PARSE EVENTS ------------------ */
+  
+      const tokenContract = new ethers.Contract(
+        selectedToken,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        signer
+      );
+      const approveTx = await tokenContract.approve(REACT_APP_CONTRACT_ADDRESS, totalAmount);
+      await approveTx.wait();
+  
+      const tx = await contract.createAndPayForMultipleOrders(productIds, amounts, selectedToken);
+      const receipt = await tx.wait();
+  
       const paymentEvents = receipt.logs
         .map((log) => {
           try {
-            return decodeEventLog({
-              abi: ecommercePaymentAbi,
-              data: log.data,
-              topics: log.topics,
-            });
+            return contract.interface.parseLog(log);
           } catch {
             return null;
           }
         })
-        .filter((e) => e?.eventName === 'PaymentReceived');
-
-      const onChainOrderIds = paymentEvents.map((e) =>
-        e.args.orderId.toString()
-      );
-
-      /* ------------------ BACKEND SAVE ------------------ */
+        .filter((e) => e?.name === 'PaymentReceived');
+  
+      const onChainOrderIds = paymentEvents.map((e) => e.args.orderId.toString());
+  
       const orderItems = items.map((item, index) => ({
         productId: item.id,
-        quantity: item.quantity,
+        quantity: item.quantity, // Include quantity
         amount: item.price * item.quantity,
         onChainOrderId: onChainOrderIds[index] || null,
       }));
-
+  
       await axios.post(
         API_ENDPOINTS.ORDERS_CREATE_BATCH,
         {
           items: orderItems,
-          token:
-            selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
-          transactionHash: receipt.transactionHash,
-          totalAmount: items.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0
-          ),
-          buyer: address,
+          token: selectedToken === REACT_APP_USDT_ADDRESS ? 'USDT' : 'USDC',
+          transactionHash: receipt.hash,
+          totalAmount: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+          buyer: await signer.getAddress()
         },
         { headers: authHeaders() }
       );
-
+  
       toast.success(`Order placed for ${items.length} items & saved!`);
-
-      /* ------------------ CLEAR CART ------------------ */
+  
       for (const item of items) {
         await handleRemove(item.id, false);
       }
-
+  
       fetchCart();
     } catch (err) {
       console.error(err);
-      toast.error(
-        err?.shortMessage ||
-        err?.reason ||
-        err?.response?.data?.message ||
-        'Order failed'
-      );
+      toast.error(err?.reason || err?.response?.data?.message || 'Order failed');
     } finally {
       setPlacingOrder(false);
     }
   };
-
+  
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -807,9 +564,7 @@ const CartSection = () => {
 
                 <button
                   onClick={() => items.length === 1 ? handleBuyNow() : handlePlaceOrder()}
-                  disabled={placingOrder || items.length === 0
-                    // || !contract
-                  }
+                  disabled={placingOrder || items.length === 0 || !contract}
                   className="btn btn-main w-100 py-14 text-lg my-2 mt-4"
                 >
                   {placingOrder ? 'Processing Payment...' : 'Place Order'}

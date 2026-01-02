@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 
 const HeaderOne = () => {
 
-  // const { connectWallet, disconnectWallet, address, walletType, isConnected } = useWallet();
+  const { connectWallet, disconnectWallet, address, walletType, isConnected } = useWallet();
 
   const [scroll, setScroll] = useState(false);
 
@@ -151,24 +151,24 @@ const HeaderOne = () => {
     }
   }, []);
 
-  // const handleConnectWallet = async (type = 'metamask') => {
-  //   try {
-  //     await connectWallet(type);
-  //     setShowWalletModal(false);
-  //     toast.success(`Connected via ${type === 'walletconnect' ? 'WalletConnect' : 'MetaMask'}`);
-  //   } catch (err) {
-  //     toast.error(err.message || 'Failed to connect wallet');
-  //   }
-  // };
+  const handleConnectWallet = async (type = 'metamask') => {
+    try {
+      await connectWallet(type);
+      setShowWalletModal(false);
+      toast.success(`Connected via ${type === 'walletconnect' ? 'WalletConnect' : 'MetaMask'}`);
+    } catch (err) {
+      toast.error(err.message || 'Failed to connect wallet');
+    }
+  };
 
-  // const handleDisconnectWallet = async () => {
-  //   try {
-  //     await disconnectWallet();
-  //     toast.success('Wallet disconnected');
-  //   } catch (err) {
-  //     toast.error('Failed to disconnect');
-  //   }
-  // };
+  const handleDisconnectWallet = async () => {
+    try {
+      await disconnectWallet();
+      toast.success('Wallet disconnected');
+    } catch (err) {
+      toast.error('Failed to disconnect');
+    }
+  };
 
   // Search state
   const navigate = useNavigate();
@@ -844,9 +844,8 @@ const HeaderOne = () => {
                     )}
                   </div>
 
-                  <appkit-button />
                   {/* Wallet Button - DESKTOP */}
-                  {/* <div className='position-relative' ref={walletButtonRef} style={{ zIndex: 3500 }}>
+                  <div className='position-relative' ref={walletButtonRef} style={{ zIndex: 3500 }}>
                     {isConnected ? (
                       <div className='d-flex align-items-center gap-2'>
                         <button
@@ -948,7 +947,7 @@ const HeaderOne = () => {
                         )}
                       </>
                     )}
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1107,10 +1106,8 @@ const HeaderOne = () => {
                   )}
                 </div>
 
-                <appkit-button />
-
                 {/* Wallet Button - MOBILE */}
-                {/* <div className='position-relative'>
+                <div className='position-relative'>
                   {isConnected ? (
                     <div className='d-flex align-items-center gap-1'>
                       <button
@@ -1218,7 +1215,7 @@ const HeaderOne = () => {
                       )}
                     </>
                   )}
-                </div> */}
+                </div>
               </div>
             </div>
 
