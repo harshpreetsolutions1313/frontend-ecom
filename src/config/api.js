@@ -15,7 +15,8 @@ export const API_ENDPOINTS = {
     if (maxPrice) params.push(`maxPrice=${encodeURIComponent(maxPrice)}`);
     return `${API_BASE_URL}/api/products/filter/price-range?${params.join('&')}`;
   },
-  CATEGORIES_DETAILS: `${API_BASE_URL}/api/products/categories/details`,
+  // CATEGORIES_DETAILS: `${API_BASE_URL}/api/products/categories/details`,
+  CATEGORIES_DETAILS: `${API_BASE_URL}/api/products/category-stats`,
   ORDERS_CREATE: `${API_BASE_URL}/api/orders/create`,
   ORDERS_CREATE_BATCH: `${API_BASE_URL}/api/orders/create-batch`,
   CART: `${API_BASE_URL}/api/users/cart`,

@@ -36,7 +36,9 @@ const generalConfig = {
   metadata,
   themeMode: 'light',
   themeVariables: {
-    '--w3m-accent': '#000000',
+    '--w3m-accent': '#FF0000',
+    '--apkt-accent': '#FF0000',
+    '--w3m-color-mix': '#217F4C'
   }
 }
 
