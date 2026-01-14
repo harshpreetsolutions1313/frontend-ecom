@@ -383,7 +383,7 @@ const HeaderTwo = ({ category }) => {
             {/* Logo Start */}
             <div className='logo'>
               <Link to='/' className='link'>
-                <img src='assets/images/logo/logo-two.png' alt='Logo' />
+                <img src='assets/images/logo/logo.png' alt='Logo' />
               </Link>
             </div>
             {/* Logo End  */}

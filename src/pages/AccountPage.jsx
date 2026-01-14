@@ -42,7 +42,7 @@ const AccountPage = () => {
       <FooterTwo />
 
       {/* BottomFooter */}
-      <BottomFooter />
+      {/* <BottomFooter /> */}
 
 
     </>

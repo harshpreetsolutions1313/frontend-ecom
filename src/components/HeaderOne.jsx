@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../config/api';
 import { useWallet } from '../context/WalletContext';
 import toast from 'react-hot-toast'
 
+
 const HeaderOne = () => {
 
   // const { connectWallet, disconnectWallet, address, walletType, isConnected } = useWallet();
@@ -95,6 +96,8 @@ const HeaderOne = () => {
   const [cartLoading, setCartLoading] = useState(false);
   const cartMenuRef = useRef(null);
 
+
+
   const selectPreferredToken = (token) => {
     setPreferredToken(token);
     try { localStorage.setItem('preferredToken', token); window.preferredToken = token; window.dispatchEvent(new Event('prefChanged')); } catch (e) { }
@@ -181,6 +184,19 @@ const HeaderOne = () => {
   // Categories state (for secondary navbar)
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const handleAccountButtonClick = e => {
+    e.stopPropagation()
+
+    // 🚫 If not logged in → go directly to login page
+    if (!isLoggedIn) {
+      navigate('/account') // or '/login' if that is your login route
+      return
+    }
+
+    // ✅ If logged in → open dropdown
+    toggleAccountMenu()
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -816,7 +832,10 @@ const HeaderOne = () => {
                   <div ref={accountMenuRef} className='position-relative me-8' style={{ zIndex: 3500 }}>
                     <button
                       type='button'
-                      onClick={(e) => { e.stopPropagation(); toggleAccountMenu(); }}
+
+                      // onClick={(e) => { e.stopPropagation(); toggleAccountMenu(); }}
+                      onClick={handleAccountButtonClick}
+
                       className='bg-main-600 text-white py-8 px-12 rounded-pill d-inline-flex align-items-center gap-4'
                       style={{ cursor: 'pointer', position: 'relative', zIndex: 3500 }}
                     >
