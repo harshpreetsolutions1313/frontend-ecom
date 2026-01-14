@@ -424,7 +424,7 @@ const HeaderOne = () => {
         </button>
         <div className='mobile-menu__inner'>
           <Link to='/' className='mobile-menu__logo'>
-            <img src='assets/images/logo/logo.png' alt='Logo' />
+            <img src='/assets/images/logo/logo.png' alt='Logoo' />
           </Link>
           <div className='mobile-menu__menu'>
             <ul className='nav-menu flex-align nav-menu--mobile'>
@@ -719,7 +719,7 @@ const HeaderOne = () => {
           <nav className='header-inner d-none d-lg-flex align-items-center' style={{ gap: '16px', position: 'relative', zIndex: 10 }}>
 
             <Link to='/' className='link' style={{ flexShrink: 0, marginRight: '16px' }}>
-              <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '40px' }} />
+              <img src='/assets/images/logo/logo.png' alt='Loogo' style={{ height: '40px' }} />
             </Link>
 
             <form
@@ -979,7 +979,7 @@ const HeaderOne = () => {
             <div className='d-flex align-items-center justify-content-between py-2' style={{ gap: '8px' }}>
               {/* Logo - Left Side */}
               <Link to='/' className='d-flex' style={{ flexShrink: 0 }}>
-                <img src='assets/images/logo/logo.png' alt='Logo' style={{ height: '32px', width: 'auto', maxWidth: '100px', objectFit: 'contain' }} />
+                <img src='/assets/images/logo/logo.png' alt='Logo' style={{ height: '32px', width: 'auto', maxWidth: '100px', objectFit: 'contain' }} />
               </Link>
 
               {/* Right Side Buttons */}

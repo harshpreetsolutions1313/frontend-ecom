@@ -197,7 +197,7 @@ const ShopSection = () => {
                                 </ul>
                             </div>
 
-                            <div className="shop-sidebar__box border border-gray-100 rounded-8 p-32 mb-32">
+                            {/* <div className="shop-sidebar__box border border-gray-100 rounded-8 p-32 mb-32">
                                 <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">Filter by Price</h6>
                                 <div className="custom--range">
                                     <ReactSlider
@@ -214,7 +214,7 @@ const ShopSection = () => {
                                         <button type="button" className="btn btn-main h-40 flex-align">Filter</button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* <div className="shop-sidebar__box rounded-8">
                                 <img src="assets/images/thumbs/advertise-img1.png" alt="" />
