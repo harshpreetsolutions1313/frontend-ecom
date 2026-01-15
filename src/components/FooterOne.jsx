@@ -1,7 +1,28 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+
+
 
 const FooterOne = () => {
+
+    const [categories, setCategories] = useState([])
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get(
+                    'https://backend-ecom-liart.vercel.app/api/products/categories/details'
+                )
+                setCategories(res.data.slice(0, 6)) // only first 6
+            } catch (error) {
+                console.error('Failed to fetch categories', error)
+            }
+        }
+
+        fetchCategories()
+    }, [])
+
     return (
         <footer className="footer py-120">
             <img
@@ -10,7 +31,17 @@ const FooterOne = () => {
                 className="body-bottom-bg"
             />
             <div className="container container-lg">
-                <div className="footer-item-wrapper d-flex align-items-start flex-wrap">
+                {/* <div className="footer-item-wrapper d-flex align-items-start flex-wrap"> */}
+
+                <div
+                    className="footer-item-wrapper align-items-start"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: '32px'
+                    }}
+                >
+
                     <div className="footer-item">
                         <div className="footer-item__logo">
                             <Link to="/">
@@ -26,7 +57,7 @@ const FooterOne = () => {
                                 <i className="ph-fill ph-map-pin" />
                             </span>
                             <span className="text-md text-gray-900 ">
-                                789 Inner Lane, Biyes park, California, USA
+                                Store1313, SAS Nagar, Punjab
                             </span>
                         </div>
                         <div className="flex-align gap-16 mb-16">
@@ -57,11 +88,11 @@ const FooterOne = () => {
                                 to="/mailto:support24@marketpro.com"
                                 className="text-md text-gray-900 hover-text-main-600"
                             >
-                                support24@marketpro.com
+                                support24@store1313.com
                             </Link>
                         </div>
                     </div>
-                    <div className="footer-item">
+                    {/* <div className="footer-item">
                         <h6 className="footer-item__title">Information</h6>
                         <ul className="footer-menu">
                             <li className="mb-16">
@@ -95,8 +126,8 @@ const FooterOne = () => {
                                 </Link>
                             </li>
                         </ul>
-                    </div>
-                    <div className="footer-item">
+                    </div> */}
+                    {/* <div className="footer-item">
                         <h6 className="footer-item__title">Customer Support</h6>
                         <ul className="footer-menu">
                             <li className="mb-16">
@@ -133,8 +164,8 @@ const FooterOne = () => {
                                 </Link>
                             </li>
                         </ul>
-                    </div>
-                    <div className="footer-item">
+                    </div> */}
+                    {/* <div className="footer-item">
                         <h6 className="footer-item__title">My Account</h6>
                         <ul className="footer-menu">
                             <li className="mb-16">
@@ -168,45 +199,57 @@ const FooterOne = () => {
                                 </Link>
                             </li>
                         </ul>
-                    </div>
+                    </div> */}
+
                     <div className="footer-item">
-                        <h6 className="footer-item__title">Daily Groceries</h6>
+                        <h6 className="footer-item__title">My Account</h6>
                         <ul className="footer-menu">
                             <li className="mb-16">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Dairy &amp; Eggs
+                                <Link to="/account" className="text-gray-600 hover-text-main-600">
+                                    My Account
                                 </Link>
                             </li>
                             <li className="mb-16">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Meat &amp; Seafood
+                                <Link
+                                    to="/purchased-products"
+                                    className="text-gray-600 hover-text-main-600"
+                                >
+                                    Order History
                                 </Link>
                             </li>
                             <li className="mb-16">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Breakfast Food
+                                <Link to="/wishlist" className="text-gray-600 hover-text-main-600">
+                                    Wishlist
                                 </Link>
                             </li>
-                            <li className="mb-16">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Household Supplies
-                                </Link>
-                            </li>
-                            <li className="mb-16">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Bread &amp; Bakery
-                                </Link>
-                            </li>
-                            <li className="">
-                                <Link to="/shop" className="text-gray-600 hover-text-main-600">
-                                    Pantry Staples
+                            <li>
+                                <Link to="/cart" className="text-gray-600 hover-text-main-600">
+                                    Shopping Cart
                                 </Link>
                             </li>
                         </ul>
                     </div>
+
+
                     <div className="footer-item">
-                        <h6 className="">Shop on The Go</h6>
-                        <p className="mb-16">Marketpro App is available. Get it now</p>
+                        <h6 className="footer-item__title">Daily Groceries</h6>
+                        <ul className="footer-menu">
+                            {categories.map(cat => (
+                                <li key={cat._id} className="mb-16">
+                                    <Link
+                                        to={`/shop?category=${encodeURIComponent(cat.category)}`}
+                                        className="text-gray-600 hover-text-main-600 text-capitalize"
+                                    >
+                                        {cat.category}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="footer-item">
+                        <h6 className="">1313 Store</h6>
+                        <p className="mb-16">Your our e-commerce platform</p>
                         <div className="flex-align gap-8 my-32">
                             <Link to="/https://www.apple.com/store" className="">
                                 <img src="assets/images/thumbs/store-img1.png" alt="" />

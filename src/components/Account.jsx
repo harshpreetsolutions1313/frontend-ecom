@@ -112,8 +112,8 @@ const Account = () => {
       <div className="container container-lg">
         {/* Toggle Buttons */}
         <div className="flex-align gap-16 mb-32">
-          <button className={`btn ${isSignInView ? 'btn-main' : 'btn-outline-main'} py-18 px-40`} onClick={() => { setIsSignInView(true); setError(null); setMessage(null); }} > Sign In </button>
-          <button className={`btn ${!isSignInView ? 'btn-main' : 'btn-outline-main'} py-18 px-40`} onClick={() => { setIsSignInView(false); setError(null); setMessage(null); }} > Register </button>
+          <button className={`btn ${isSignInView ? 'btn-main-two' : 'btn-outline-main-two'} py-18 px-40`} onClick={() => { setIsSignInView(true); setError(null); setMessage(null); }} > Sign In </button>
+          <button className={`btn ${!isSignInView ? 'btn-main-two' : 'btn-outline-main-two'} py-18 px-40`} onClick={() => { setIsSignInView(false); setError(null); setMessage(null); }} > Register </button>
         </div>
         {/* Status Messages */}
         {loading && <div className="alert alert-info">Loading...</div>}
@@ -126,14 +126,14 @@ const Account = () => {
             <div className="col-xl-6">
               {isSignInView ? (
                 /* Login Card Start */
-                <div className="border border-gray-100 hover-border-main-600 transition-1 rounded-16 px-24 py-40 h-100">
+                <div className="border border-gray-100 hover-border-main-two-600 transition-1 rounded-16 px-24 py-40 h-100">
                   <h6 className="text-xl mb-32">Login to Your Account</h6>
                   <div className="mb-24">
-                    <label htmlFor="email" className="text-neutral-900 text-lg mb-8 fw-medium"> Email address <span className="text-danger">*</span> </label>
+                    <label htmlFor="email" className="text-neutral-900 text-lg mb-8 fw-medium"> Email address <span className="text-main-two-600">*</span> </label>
                     <input type="email" className="common-input" id="email" placeholder="Enter Email Address" value={signInData.email} onChange={handleSignInChange} required />
                   </div>
                   <div className="mb-24">
-                    <label htmlFor="password" className="text-neutral-900 text-lg mb-8 fw-medium"> Password <span className="text-danger">*</span> </label>
+                    <label htmlFor="password" className="text-neutral-900 text-lg mb-8 fw-medium"> Password <span className="text-main-two-600">*</span> </label>
                     <div className="position-relative">
                       <input type="password" className="common-input" id="password" placeholder="Enter Password" value={signInData.password} onChange={handleSignInChange} required />
                       {/* Toggle password visibility implementation can be added later */}
@@ -142,7 +142,7 @@ const Account = () => {
                   </div>
                   <div className="mb-24 mt-48">
                     <div className="flex-align gap-48 flex-wrap">
-                      <button type="submit" className="btn btn-main py-18 px-40" disabled={loading}> {loading ? 'Logging in...' : 'Log in'} </button>
+                      <button type="submit" className="btn btn-main-two py-18 px-40" disabled={loading}> {loading ? 'Logging in...' : 'Log in'} </button>
                       <div className="form-check common-check">
                         <input className="form-check-input" type="checkbox" defaultValue="" id="remember" />
                         <label className="form-check-label flex-grow-1" htmlFor="remember"> Remember me </label>
@@ -150,24 +150,24 @@ const Account = () => {
                     </div>
                   </div>
                   <div className="mt-48">
-                    <Link to="#" className="text-danger-600 text-sm fw-semibold hover-text-decoration-underline" > Forgot your password? </Link>
+                    <Link to="#" className="text-main-two-600 text-sm fw-semibold hover-text-decoration-underline" > Forgot your password? </Link>
                   </div>
                 </div>
                 /* Login Card End */
               ) : (
                 /* Register Card Start */
-                <div className="border border-gray-100 hover-border-main-600 transition-1 rounded-16 px-24 py-40">
+                <div className="border border-gray-100 hover-border-main-two-600 transition-1 rounded-16 px-24 py-40">
                   <h6 className="text-xl mb-32">Create a New Account</h6>
                   <div className="mb-24">
-                    <label htmlFor="name" className="text-neutral-900 text-lg mb-8 fw-medium"> Username / Name <span className="text-danger">*</span> </label>
+                    <label htmlFor="name" className="text-neutral-900 text-lg mb-8 fw-medium"> Username / Name <span className="text-main-two-600">*</span> </label>
                     <input type="text" className="common-input" id="name" placeholder="Write a username" value={registerData.name} onChange={handleRegisterChange} required />
                   </div>
                   <div className="mb-24">
-                    <label htmlFor="email" className="text-neutral-900 text-lg mb-8 fw-medium"> Email address <span className="text-danger">*</span> </label>
+                    <label htmlFor="email" className="text-neutral-900 text-lg mb-8 fw-medium"> Email address <span className="text-main-two-600">*</span> </label>
                     <input type="email" className="common-input" id="email" placeholder="Enter Email Address" value={registerData.email} onChange={handleRegisterChange} required />
                   </div>
                   <div className="mb-24">
-                    <label htmlFor="password" className="text-neutral-900 text-lg mb-8 fw-medium"> Password <span className="text-danger">*</span> </label>
+                    <label htmlFor="password" className="text-neutral-900 text-lg mb-8 fw-medium"> Password <span className="text-main-two-600">*</span> </label>
                     <div className="position-relative">
                       <input type="password" className="common-input" id="password" placeholder="Enter Password" value={registerData.password} onChange={handleRegisterChange} required />
                       {/* Toggle password visibility implementation can be added later */}
@@ -175,10 +175,10 @@ const Account = () => {
                     </div>
                   </div>
                   <div className="my-48">
-                    <p className="text-gray-500"> Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <Link to="#" className="text-main-600 text-decoration-underline"> privacy policy </Link> . </p>
+                    <p className="text-gray-500"> Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <Link to="#" className="text-main-two-600 text-decoration-underline"> privacy policy </Link> . </p>
                   </div>
                   <div className="mt-48">
-                    <button type="submit" className="btn btn-main py-18 px-40" disabled={loading}> {loading ? 'Registering...' : 'Register'} </button>
+                    <button type="submit" className="btn btn-main-two py-18 px-40" disabled={loading}> {loading ? 'Registering...' : 'Register'} </button>
                   </div>
                 </div>
                 /* Register Card End */

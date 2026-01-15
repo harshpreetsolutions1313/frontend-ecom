@@ -654,7 +654,7 @@ const CartSection = () => {
           <h5 className="mb-12">Your cart is empty</h5>
           <Link
             to="/"
-            className="btn bg-main-600 text-white rounded-pill px-24 py-12"
+            className="btn bg-main-two-600 text-white rounded-pill px-24 py-12"
           >
             Continue Shopping
           </Link>
@@ -712,7 +712,7 @@ const CartSection = () => {
                               <h6 className="title text-lg fw-semibold mb-8">
                                 <Link
                                   to={`/product-details/${item.id}`}
-                                  className="link text-line-2"
+                                  className="link text-line-2 hover-text-main-two-600"
                                   tabIndex={0}
                                 >
                                   {item.name}
@@ -810,7 +810,7 @@ const CartSection = () => {
                   disabled={placingOrder || items.length === 0
                     // || !contract
                   }
-                  className="btn btn-main w-100 py-14 text-lg my-2 mt-4"
+                  className="btn btn-main-two w-100 py-14 text-lg my-2 mt-4"
                 >
                   {placingOrder ? 'Processing Payment...' : 'Place Order'}
                 </button>

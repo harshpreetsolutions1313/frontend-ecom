@@ -173,7 +173,7 @@ const ShopSection = () => {
                     <div className="col-lg-3">
                         <div className={`shop-sidebar ${active && "active"}`}>
                             <button onClick={sidebarController} type="button"
-                                className="shop-sidebar__close d-lg-none d-flex w-32 h-32 flex-center border border-gray-100 rounded-circle hover-bg-main-600 position-absolute inset-inline-end-0 me-10 mt-8 hover-text-white hover-border-main-600">
+                                className="shop-sidebar__close d-lg-none d-flex w-32 h-32 flex-center border border-gray-100 rounded-circle hover-bg-main-two-600 position-absolute inset-inline-end-0 me-10 mt-8 hover-text-white hover-border-main-two-600">
                                 <i className="ph ph-x" />
                             </button>
 
@@ -186,7 +186,7 @@ const ShopSection = () => {
                                         categories.map((cat) => (
                                             <li key={cat._id || cat.id || cat.name} className="mb-24">
                                                 <Link to={`/shop?category=${encodeURIComponent(cat.name || cat.title || cat.category)}`}
-                                                    className="text-gray-900 hover-text-main-600">
+                                                    className="text-gray-900 hover-text-main-two-600">
                                                     {cat.category || cat.title || cat.name} ({cat.count || 0})
                                                 </Link>
                                             </li>
@@ -230,10 +230,10 @@ const ShopSection = () => {
                             </span>
                             {/* <div className="position-relative flex-align gap-16 flex-wrap">
                                 <div className="list-grid-btns flex-align gap-16">
-                                    <button onClick={() => setGrid(true)} className={`w-44 h-44 flex-center border rounded-6 text-2xl list-btn border-gray-100 ${grid && "border-main-600 text-white bg-main-600"}`}>
+                                    <button onClick={() => setGrid(true)} className={`w-44 h-44 flex-center border rounded-6 text-2xl list-btn border-gray-100 ${grid && "border-main-two-600 text-white bg-main-two-600"}`}>
                                         <i className="ph-bold ph-list-dashes" />
                                     </button>
-                                    <button onClick={() => setGrid(false)} className={`w-44 h-44 flex-center border rounded-6 text-2xl grid-btn border-gray-100 ${!grid && "border-main-600 text-white bg-main-600"}`}>
+                                    <button onClick={() => setGrid(false)} className={`w-44 h-44 flex-center border rounded-6 text-2xl grid-btn border-gray-100 ${!grid && "border-main-two-600 text-white bg-main-two-600"}`}>
                                         <i className="ph ph-squares-four" />
                                     </button>
                                 </div>
@@ -256,7 +256,7 @@ const ShopSection = () => {
                         <div className={`list-grid-wrapper grid-cols-4 ${grid && "list-view"}`}>
                             {loadingProducts && (
                                 <div className="w-100 text-center py-40 col-span-full">
-                                    <div className="spinner-border text-main-600" style={{ width: '3rem', height: '3rem' }} role="status">
+                                    <div className="spinner-border text-main-two-600" style={{ width: '3rem', height: '3rem' }} role="status">
                                         <span className="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
@@ -266,7 +266,7 @@ const ShopSection = () => {
                                 products.map((p) => (
                                     <div
                                         key={p.id || p.id || p.name}
-                                        className="product-card p-16 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2 flex flex-col bg-white"
+                                        className="product-card p-16 border border-gray-100 hover-border-main-two-600 rounded-16 position-relative transition-2 flex flex-col bg-white"
                                         style={{ height: '520px' }} // Slightly increased total height to accommodate larger image
                                     >
                                         {/* Larger Image Container - White Background */}
@@ -292,7 +292,7 @@ const ShopSection = () => {
                                         <div className="product-card__content mt-20 flex flex-col flex-grow justify-between">
                                             <div>
                                                 <h6 className="title text-lg fw-semibold mb-8 line-clamp-2">
-                                                    <Link to={`/product-details/${p.id || p.id}`} className="link text-gray-900 hover-text-main-600">
+                                                    <Link to={`/product-details/${p.id || p.id}`} className="link text-gray-900 hover-text-main-two-600">
                                                         {p.name}
                                                     </Link>
                                                 </h6>
@@ -327,7 +327,7 @@ const ShopSection = () => {
 
                                             <button
                                                 onClick={() => handleAddToCart(p)}
-                                                className="btn bg-gray-50 text-heading hover-bg-main-600 hover-text-white py-11 px-24 rounded-8 flex-center gap-8 fw-medium w-100 transition-2 mt-auto"
+                                                className="btn bg-gray-50 text-heading hover-bg-main-two-600 hover-text-white py-11 px-24 rounded-8 flex-center gap-8 fw-medium w-100 transition-2 mt-auto"
                                             >
                                                 Add to Cart <i className="ph ph-shopping-cart" />
                                             </button>
@@ -356,8 +356,8 @@ const ShopSection = () => {
                                         <button onClick={() => handlePageChange(pageNum)}
                                             className={`page-link h-64 w-64 flex-center text-md rounded-8 fw-medium border border-gray-100 transition-2 ${
                                                 pageNum === pagination.currentPage
-                                                    ? 'bg-main-600 text-white border-main-600'
-                                                    : 'text-neutral-600 hover:bg-main-600 hover:text-white hover:border-main-600'
+                                                    ? 'bg-main-two-600 text-white border-main-two-600'
+                                                    : 'text-neutral-600 hover:bg-main-two-600 hover:text-white hover:border-main-two-600'
                                             }`}>
                                             {pageNum < 10 ? `0${pageNum}` : pageNum}
                                         </button>

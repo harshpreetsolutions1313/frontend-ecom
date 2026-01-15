@@ -377,7 +377,7 @@ const HeaderTwo = ({ category }) => {
       </div>
       {/* ==================== Mobile Menu End Here ==================== */}
       {/* ======================= Middle Header Two Start ========================= */}
-      <header className='header-middle style-two bg-color-one'>
+      <header className='header-middle style-two bg-color-one border-bottom border-gray-100'>
         <div className='container container-lg'>
           <nav className='header-inner flex-between'>
             {/* Logo Start */}
@@ -639,10 +639,10 @@ const HeaderTwo = ({ category }) => {
                   to='/account'
                   className='flex-align flex-column gap-8 item-hover-two'
                 >
-                  <span className='text-2xl text-white d-flex position-relative item-hover__text'>
+                  <span className='text-2xl text-main-two-600 d-flex position-relative item-hover__text'>
                     <i className='ph ph-user' />
                   </span>
-                  <span className='text-md text-white item-hover__text d-none d-lg-flex'>
+                  <span className='text-md item-hover__text d-none d-lg-flex text-main-two-600'>
                     Profile
                   </span>
                 </Link>
@@ -650,13 +650,13 @@ const HeaderTwo = ({ category }) => {
                   to='/wishlist'
                   className='flex-align flex-column gap-8 item-hover-two'
                 >
-                  <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
+                  <span className='text-2xl text-main-two-600 d-flex position-relative me-6 item-hover__text'>
                     <i className='ph ph-heart' />
                     {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
                       2
                     </span> */}
                   </span>
-                  <span className='text-md text-white item-hover__text d-none d-lg-flex'>
+                  <span className='text-md text-main-two-600 item-hover__text d-none d-lg-flex'>
                     Wishlist
                   </span>
                 </Link>
@@ -677,13 +677,13 @@ const HeaderTwo = ({ category }) => {
                   to='/cart'
                   className='flex-align flex-column gap-8 item-hover-two'
                 >
-                  <span className='text-2xl text-white d-flex position-relative me-6 mt-6 item-hover__text'>
+                  <span className='text-2xl text-main-two-600 d-flex position-relative me-6 item-hover__text'>
                     <i className='ph ph-shopping-cart-simple' />
                     {/* <span className='w-16 h-16 flex-center rounded-circle bg-main-two-600 text-white text-xs position-absolute top-n6 end-n4'>
                       2
                     </span> */}
                   </span>
-                  <span className='text-md text-white item-hover__text d-none d-lg-flex'>
+                  <span className='text-md text-main-two-600 item-hover__text d-none d-lg-flex'>
                     Cart
                   </span>
                 </Link>
