@@ -6,8 +6,8 @@ import HeaderTwo from "../components/HeaderTwo";
 import Breadcrumb from "../components/Breadcrumb";
 import WishListSection from "../components/WishListSection";
 import ShippingOne from "../components/ShippingOne";
-import FooterTwo from "../components/FooterTwo";
-import BottomFooter from "../components/BottomFooter";
+// import FooterTwo from "../components/FooterTwo";
+// import BottomFooter from "../components/BottomFooter";
 import FooterFour from "../components/FooterFour";
 
 function WishlistPage() {
