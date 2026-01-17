@@ -9,6 +9,7 @@ import PurchasedProductsSection from "../components/PurchasedProductsSection";
 import ShippingOne from "../components/ShippingOne";
 import FooterTwo from "../components/FooterTwo";
 import BottomFooter from "../components/BottomFooter";
+import FooterFour from "../components/FooterFour";
 
 function PurchasedProductsPage() {
   return (
@@ -35,10 +36,11 @@ function PurchasedProductsPage() {
       <ShippingOne />
 
       {/* FooterTwo */}
-      <FooterTwo />
+      {/* <FooterTwo /> */}
+      <FooterFour/>
 
       {/* BottomFooter */}
-      <BottomFooter />
+      {/* <BottomFooter /> */}
     </>
   );
 }

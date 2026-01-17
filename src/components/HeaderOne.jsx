@@ -107,7 +107,7 @@ const HeaderOne = () => {
     return cartEntries
       .map((entry) => {
         const product = entry.product || {};
-        const id = product._id || entry.productId || '';
+        const id = product.id || entry.productId || '';
         if (!id) return null;
 
         return {
@@ -754,8 +754,8 @@ const HeaderOne = () => {
                       {!searchLoading && searchResults.length === 0 && <div className='text-sm text-gray-500'>No results</div>}
                       <ul className='list-unstyled mb-0'>
                         {searchResults.slice(0, 6).map((p) => (
-                          <li key={p._id} className='d-flex gap-12 align-items-center py-8 border-bottom'>
-                            <Link to={`/product-details/${p._id}`} onClick={() => setShowSearchDropdown(false)} className='d-flex gap-12 align-items-center text-inherit'>
+                          <li key={p.id} className='d-flex gap-12 align-items-center py-8 border-bottom'>
+                            <Link to={`/product-details/${p.id}`} onClick={() => setShowSearchDropdown(false)} className='d-flex gap-12 align-items-center text-inherit'>
                               <img src={p.images?.[0] || '/images/no-image.svg'} alt={p.name} style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }} onError={(e) => e.target.src = '/images/no-image.svg'} />
                               <div>
                                 <div className='text-sm fw-medium'>{p.name}</div>
@@ -1283,9 +1283,9 @@ const HeaderOne = () => {
                         {!searchLoading && searchResults.length === 0 && <div className='text-gray-500 p-2' style={{ fontSize: '13px' }}>No results</div>}
                         <ul className='list-unstyled mb-0'>
                           {searchResults.slice(0, 6).map((p) => (
-                            <li key={p._id} className='border-bottom'>
+                            <li key={p.id} className='border-bottom'>
                               <Link
-                                to={`/product-details/${p._id}`}
+                                to={`/product-details/${p.id}`}
                                 onClick={() => setShowSearchDropdown(false)}
                                 className='d-flex gap-2 align-items-center text-inherit text-decoration-none p-2'
                               >

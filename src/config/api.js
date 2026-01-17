@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   },
   // CATEGORIES_DETAILS: `${API_BASE_URL}/api/products/categories/details`,
   CATEGORIES_DETAILS: `${API_BASE_URL}/api/products/category-stats`,
+  CATEGORY_DETAILS: `${API_BASE_URL}/api/categories/details`,
   ORDERS_CREATE: `${API_BASE_URL}/api/orders/create`,
   ORDERS_CREATE_BATCH: `${API_BASE_URL}/api/orders/create-batch`,
   CART: `${API_BASE_URL}/api/users/cart`,

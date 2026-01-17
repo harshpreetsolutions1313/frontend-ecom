@@ -95,7 +95,7 @@ const ShopSection = () => {
         const fetchCategories = async () => {
             setLoadingCategories(true)
             try {
-                const res = await axios.get(API_ENDPOINTS.CATEGORIES_DETAILS)
+                const res = await axios.get(API_ENDPOINTS.CATEGORY_DETAILS)
                 if (!mounted) return
                 const data = res.data
                 if (Array.isArray(data)) setCategories(data)

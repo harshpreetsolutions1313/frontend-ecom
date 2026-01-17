@@ -5,8 +5,10 @@ import Breadcrumb from "../components/Breadcrumb";
 import ShopSection from "../components/ShopSection";
 import ShippingTwo from "../components/ShippingTwo";
 import FooterTwo from "../components/FooterTwo";
+import FooterOne from "../components/FooterOne";
 import ColorInit from "../helper/ColorInit";
 import ScrollToTop from "react-scroll-to-top";
+import FooterFour from "../components/FooterFour";
 
 const ShopPage = () => {
 
@@ -16,7 +18,7 @@ const ShopPage = () => {
       <ColorInit color={true} />
 
       {/* ScrollToTop */}
-      <ScrollToTop smooth color="#FA6400" />
+      <ScrollToTop smooth color="#299E60" />
 
       {/* Preloader */}
       <Preloader />
@@ -33,8 +35,8 @@ const ShopPage = () => {
       {/* ShippingTwo */}
       <ShippingTwo />
 
-      {/* FooterTwo */}
-      <FooterTwo />
+      {/* FooterFour */}
+      <FooterFour />
     </>
   );
 };

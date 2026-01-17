@@ -49,8 +49,8 @@ const NewArrivalTwo = () => {
 
         try {
             const payload = {
-                productId: product.id || product._id,
-                quantity: 2
+                productId: product.id || product.id,
+                quantity: 1
             }
 
             await axios.post(API_ENDPOINTS.CART || API_ENDPOINTS.CART, payload, {
@@ -59,7 +59,7 @@ const NewArrivalTwo = () => {
                 }
             })
 
-            toast.success(`${product.name} (x2) added to cart!`, {
+            toast.success(`${product.name} added to cart!`, {
                 duration: 3000,
                 position: 'top-right',
             })
@@ -158,10 +158,10 @@ const NewArrivalTwo = () => {
                     ) : products.length > 0 ? (
                         <Slider {...settings}>
                             {products.map((product) => (
-                                <div key={product._id || product.id} className="px-8">
+                                <div key={product.id || product.id} className="px-8">
                                     <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2 bg-white">
                                         <Link
-                                            to={`/product-details/${product._id || product.id}`}
+                                            to={`/product-details/${product.id || product.id}`}
                                             className="product-card__thumb flex-center rounded-8 bg-white overflow-hidden"
                                             style={{ height: '200px' }}
                                         >
@@ -175,7 +175,7 @@ const NewArrivalTwo = () => {
                                         <div className="product-card__content p-sm-2 mt-12">
                                             <h6 className="title text-lg fw-semibold mb-8">
                                                 <Link
-                                                    to={`/product-details/${product._id || product.id}`}
+                                                    to={`/product-details/${product.id || product.id}`}
                                                     className="link text-line-2 text-gray-900 hover-text-main-600"
                                                 >
                                                     {product.name}

@@ -243,7 +243,7 @@ const ProductDetailsOne = () => {
                     </div>
                   </div>
                   <div className="mt-24">
-                    <div className="product-details__images-slider">
+                    {/* <div className="product-details__images-slider">
                       <Slider {...settingsThumbs}>
                         {productImages.map((image, index) => (
                           <div
@@ -255,7 +255,7 @@ const ProductDetailsOne = () => {
                           </div>
                         ))}
                       </Slider>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -282,8 +282,8 @@ const ProductDetailsOne = () => {
 
                   <div className="mt-32 flex-align flex-wrap gap-32">
                     <div className="flex-align gap-8">
-                      <h4 className="mb-0">${Number(product?.price || 0).toFixed(2)}</h4>
-                      {product?.originalPrice && <span className="text-md text-gray-500">${Number(product.originalPrice).toFixed(2)}</span>}
+                      <h4 className="mb-0">${Number(product?.price ?? 0)}</h4>
+                      {product?.originalPrice && <span className="text-md text-gray-500">${Number(product.originalPrice)}</span>}
                     </div>
                   </div>
 

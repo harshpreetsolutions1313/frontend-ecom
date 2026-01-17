@@ -8,6 +8,7 @@ import BottomFooter from "../components/BottomFooter";
 import CartSection from "../components/CartSection";
 import ShippingOne from "../components/ShippingOne";
 import ScrollToTop from "react-scroll-to-top";
+import FooterFour from "../components/FooterFour";
 
 
 const CartPage = () => {
@@ -20,7 +21,8 @@ const CartPage = () => {
       <ColorInit color={true} />
 
       {/* ScrollToTop */}
-      <ScrollToTop smooth color="#FA6400" />
+      <ScrollToTop smooth color="#299E60" />
+      {/* 299E60 - green  */}
 
       {/* Preloader */}
       <Preloader />
@@ -38,10 +40,11 @@ const CartPage = () => {
       <ShippingOne />
 
       {/* FooterTwo */}
-      <FooterTwo />
+      {/* <FooterTwo /> */}
+      <FooterFour/>
 
       {/* BottomFooter */}
-      <BottomFooter />
+      {/* <BottomFooter /> */}
 
 
     </>
